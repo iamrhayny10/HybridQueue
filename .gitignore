@@ -1,0 +1,10 @@
+build/
+.dart_tool/
+.idea/
+.gradle/
+*.apk
+*.aab
+local.properties
+android/key.properties
+*.jks
+*.keystore

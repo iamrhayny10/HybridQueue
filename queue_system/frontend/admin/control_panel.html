@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Panel — GRC Queue</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#F5F5F0;color:#111;font-size:15px;padding:28px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.header-left h1{font-size:22px;font-weight:700;color:#111}
+.header-left p{font-size:13px;color:#888;margin-top:3px}
+.header-right{display:flex;align-items:center;gap:10px}
+.online-badge{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#059669;background:#D1FAE5;padding:5px 12px;border-radius:20px}
+.online-dot{width:8px;height:8px;background:#059669;border-radius:50%}
+.clock{font-size:14px;font-weight:600;color:#111}
+.info-box{display:flex;align-items:flex-start;gap:12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:20px}
+.info-icon{font-size:20px;color:#1A56DB;flex-shrink:0;margin-top:1px}
+.info-text{font-size:13px;color:#1E40AF;line-height:1.6}
+.card{background:#fff;border-radius:12px;border:1px solid #E5E5E0;padding:20px;margin-bottom:16px}
+.card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.card-ttl{font-size:15px;font-weight:700;color:#111}
+.btn{padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid #DDD;background:#fff;color:#555;font-weight:500;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:#F5F5F0}
+.btn-primary{background:#1A56DB;color:#fff;border-color:#1A56DB}
+.btn-primary:hover{background:#1E40AF}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-weight:600;color:#888;padding:10px 14px;border-bottom:2px solid #E5E5E0;font-size:12px;white-space:nowrap}
+td{padding:14px;border-bottom:1px solid #E5E5E0;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.svc-name{display:flex;align-items:center;gap:10px;font-weight:700;color:#111;font-size:15px}
+.svc-desc{font-size:13px;color:#555;line-height:1.5}
+.time-input{width:90px;padding:8px 10px;border:1px solid #DDD;border-radius:8px;font-size:16px;font-weight:600;text-align:center;color:#111}
+.time-input:focus{outline:2px solid #1A56DB;border-color:transparent}
+.min-label{color:#888;font-size:13px;margin-left:6px}
+.status-active{background:#D1FAE5;color:#065F46;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600}
+.updated-cell{font-size:12px;color:#555;line-height:1.6}
+.updated-by{color:#aaa;font-size:11px}
+.toast{position:fixed;bottom:22px;right:22px;background:#111;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;display:none;z-index:9999;max-width:320px}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#1A56DB;text-decoration:none;margin-bottom:16px;font-weight:500}
+.back-btn:hover{text-decoration:underline}
+
+/* Maroon & cream theme */
+body{background:#FFF7F2!important;color:#2B1A1A}
+.header{border-bottom:3px solid #7B1F2B;padding-bottom:12px}
+.header-left h1{color:#7B1F2B}
+.header-left p{color:#7A6A62}
+.card{background:#fff;border:1px solid #EFE0D3;border-radius:16px}
+.card-ttl{color:#2B1A1A}
+.btn{border-color:#E7D5C7;color:#5B4A44}.btn:hover{background:#FFF1E2}
+.btn-primary{background:#D4A017;border-color:#D4A017;color:#2B1B00;font-weight:600}
+.btn-primary:hover{background:#C2950F}
+th{color:#7A6A62}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-btn">← Back to Dashboard</a>
+
+<div class="header">
+  <div class="header-left">
+    <h1>⚙️ Control Panel</h1>
+    <p>Manage base time settings and system configurations for queue estimation.</p>
+  </div>
+  <div class="header-right">
+    <div class="online-badge"><div class="online-dot"></div>System online</div>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+</div>
+
+<!-- Info box -->
+<div class="info-box">
+  <div class="info-icon">ℹ️</div>
+  <div class="info-text">
+    <strong>Base Time</strong> is the estimated amount of time normally needed to serve one student for one transaction.<br>
+    These values are used as the initial assumption for the Estimated Response Time (ERT) calculations.
+  </div>
+</div>
+
+<!-- Settings table -->
+<div class="card">
+  <div class="card-hdr">
+    <span class="card-ttl">Service Base Time Settings</span>
+    <button class="btn" onclick="resetDefaults()">🔄 Reset to Default</button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Description</th>
+        <th>Base Time (minutes)</th>
+        <th>Status</th>
+        <th>Last Updated</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><div class="svc-name"><span style="font-size:22px">🎓</span>Registrar</div></td>
+        <td><div class="svc-desc">Handles general inquiries and<br>records verification.</div></td>
+        <td>
+          <input type="number" id="min-Registrar" class="time-input" min="1" max="120" step="0.5" value="10">
+          <span class="min-label">min</span>
+        </td>
+        <td><span class="status-active">Active</span></td>
+        <td class="updated-cell" id="updated-Registrar">—</td>
+        <td><button class="btn btn-primary" onclick="save('Registrar')">💾 Save</button></td>
+      </tr>
+      <tr>
+        <td><div class="svc-name"><span style="font-size:22px">💳</span>Cashier</div></td>
+        <td><div class="svc-desc">Handles payments and<br>financial transactions.</div></td>
+        <td>
+          <input type="number" id="min-Cashier" class="time-input" min="1" max="120" step="0.5" value="5">
+          <span class="min-label">min</span>
+        </td>
+        <td><span class="status-active">Active</span></td>
+        <td class="updated-cell" id="updated-Cashier">—</td>
+        <td><button class="btn btn-primary" onclick="save('Cashier')">💾 Save</button></td>
+      </tr>
+      <tr>
+        <td><div class="svc-name"><span style="font-size:22px">🤝</span>OSA</div></td>
+        <td><div class="svc-desc">Handles student services and<br>assistance.</div></td>
+        <td>
+          <input type="number" id="min-OSA" class="time-input" min="1" max="120" step="0.5" value="8">
+          <span class="min-label">min</span>
+        </td>
+        <td><span class="status-active">Active</span></td>
+        <td class="updated-cell" id="updated-OSA">—</td>
+        <td><button class="btn btn-primary" onclick="save('OSA')">💾 Save</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- About Base Time -->
+<div class="info-box">
+  <div class="info-icon">ℹ️</div>
+  <div class="info-text">
+    <strong>About Base Time</strong><br>
+    The Machine Learning model will use this base time together with current queue data to produce a more accurate Estimated Response Time (ERT).
+    Adjust these values based on actual average transaction time per service.
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── API URL (auto-detects local vs Serveo) ──────────────────
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost/queue_system/backend/api'
+  : 'https://grcqueue2.serveousercontent.com/queue_system/backend/api';
+
+const DEFAULTS = { Registrar: 10, Cashier: 5, OSA: 8 };
+
+// ── Clock ───────────────────────────────────────────────────
+function tick() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-PH', { hour12: false });
+}
+setInterval(tick, 1000); tick();
+
+// ── Toast ───────────────────────────────────────────────────
+function toast(msg, ok = true) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = ok ? '#111' : '#DC2626';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// ── Load current settings ───────────────────────────────────
+async function load() {
+  try {
+    const r = await fetch(API + '/settings.php', {
+      headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true' }
+    });
+    const res = await r.json();
+    if (!res.success) return;
+    const bt = res.base_times || {};
+    ['Registrar', 'Cashier', 'OSA'].forEach(svc => {
+      const val = bt[svc]?.minutes;
+      const upd = bt[svc]?.updated_at;
+      if (val !== null && val !== undefined) {
+        document.getElementById('min-' + svc).value = val;
+      }
+      document.getElementById('updated-' + svc).innerHTML = upd
+        ? upd.slice(0, 16).replace('T', ' ') + '<br><span class="updated-by">by Admin</span>'
+        : '<span style="color:#aaa">Using default</span>';
+    });
+  } catch(e) {
+    toast('Could not load settings. Check connection.', false);
+  }
+}
+
+// ── Save a single service base time ─────────────────────────
+async function save(svc) {
+  const val = parseFloat(document.getElementById('min-' + svc).value);
+  if (!val || val <= 0) { toast('Enter a valid base time in minutes.', false); return; }
+  try {
+    const session = JSON.parse(localStorage.getItem('qts_session') || sessionStorage.getItem('qts_session') || '{}');
+    const uid = session?.user?.user_id || 1;
+    const name = session?.user?.full_name || 'Admin';
+    const r = await fetch(API + '/settings.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true' },
+      body: JSON.stringify({ service_type: svc, base_time_minutes: val, user_id: uid })
+    });
+    const res = await r.json();
+    if (res.success) {
+      toast('✅ ' + svc + ' base time saved — ' + val + ' min.');
+      const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
+      document.getElementById('updated-' + svc).innerHTML =
+        now + '<br><span class="updated-by">by ' + name + '</span>';
+    } else {
+      toast(res.error || 'Error saving.', false);
+    }
+  } catch(e) {
+    toast('Connection error. Check your network.', false);
+  }
+}
+
+// ── Reset all to defaults ────────────────────────────────────
+async function resetDefaults() {
+  if (!confirm('Reset all services to default base times?\nRegistrar: 10 min | Cashier: 5 min | OSA: 8 min')) return;
+  for (const [svc, val] of Object.entries(DEFAULTS)) {
+    document.getElementById('min-' + svc).value = val;
+    await save(svc);
+  }
+  toast('✅ All base times reset to defaults.');
+}
+
+// ── Init ─────────────────────────────────────────────────────
+load();
+</script>
+</body>
+</html>

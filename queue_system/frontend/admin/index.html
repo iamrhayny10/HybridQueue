@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GRC Queue — Admin Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#F5F5F0;color:#111;font-size:18px}
+.app{display:flex;height:100vh}
+.sidebar{width:292px;background:#fff;border-right:1px solid #E5E5E0;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-logo{padding:18px 18px 14px;border-bottom:1px solid #E5E5E0;display:flex;align-items:center;gap:10px}
+.sidebar-logo-img{width:38px;height:38px;flex-shrink:0;object-fit:contain}
+.sidebar-logo h1{font-size:17px;white-space:nowrap;font-weight:700}.sidebar-logo p{font-size:15px;color:#888;margin-top:2px}
+.nav-sec{padding:12px 14px 4px;font-size:14px;color:#aaa;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 16px;margin:1px 6px;border-radius:8px;cursor:pointer;font-size:17px;color:#555;transition:background .15s}
+.nav-item:hover{background:#F5F5F0;color:#111}.nav-item.active{background:#E8F0FE;color:#1A56DB;font-weight:600}
+.sidebar-foot{margin-top:auto;padding:12px;border-top:1px solid #E5E5E0}
+.uchip{display:flex;align-items:center;gap:9px;padding:8px 10px;background:#F5F5F0;border-radius:8px}
+.av{width:32px;height:32px;border-radius:50%;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#1A56DB;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:14px 24px;background:#fff;border-bottom:1px solid #E5E5E0;display:flex;align-items:center;justify-content:space-between}
+.topbar h2{font-size:20px;font-weight:700}.topbar p{font-size:15px;color:#888;margin-top:2px}
+.opill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:14px;font-weight:600;background:#DCFCE7;color:#166534}
+.dg{width:6px;height:6px;border-radius:50%;background:#22C55E}
+.content{flex:1;overflow-y:auto;padding:18px 22px}
+.card{background:#fff;border:1px solid #E5E5E0;border-radius:12px;padding:14px;margin-bottom:14px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-ttl{font-size:17px;font-weight:700}
+.mc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.mc{background:#F9F9F8;border-radius:10px;padding:14px 16px}.mc-lbl{font-size:16px;color:#888;margin-bottom:5px}.mc-val{font-size:27px;font-weight:700}
+.svc-tabs{display:flex;border-bottom:2px solid #E5E5E0;margin-bottom:14px}
+.svc-tab{padding:10px 20px;font-size:17px;font-weight:600;cursor:pointer;color:#888;border-bottom:3px solid transparent;margin-bottom:-2px;display:flex;align-items:center;gap:7px;transition:all .2s}
+.svc-tab:hover{color:#111}.svc-tab.active{color:#1A56DB;border-color:#1A56DB}.svc-tab.tc.active{color:#059669;border-color:#059669}.svc-tab.to.active{color:#7C3AED;border-color:#7C3AED}
+.tbadge{padding:2px 8px;border-radius:20px;font-size:14px;font-weight:700}
+.tball{background:#F3F4F6;color:#6B7280}.tbreg{background:#DBEAFE;color:#1E40AF}.tbcas{background:#D1FAE5;color:#065F46}.tbosa{background:#EDE9FE;color:#5B21B6}
+.field{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.field label{font-size:16px;font-weight:600;color:#555}
+.field input,.field select{padding:9px 12px;border:1px solid #DDD;border-radius:8px;font-size:17px;background:#fff;color:#111;width:100%}
+.field input,.field select,.field textarea{width:100%;min-width:0;padding:11px 14px;font-size:17px}
+.g2>.field:last-child:nth-child(odd){grid-column:1/-1}
+.field input:focus,.field select:focus{outline:2px solid #1A56DB;border-color:transparent}
+.btn{padding:8px 15px;border-radius:8px;font-size:16px;cursor:pointer;border:1px solid #DDD;background:#fff;color:#555;font-weight:500}
+.btn:hover{background:#F5F5F0}.bp{background:#1A56DB;color:#fff;border-color:#1A56DB}.bp:hover{background:#1E40AF}
+.bg{background:#DCFCE7;color:#166534;border-color:#86EFAC}.bg:hover{background:#BBF7D0}
+.br{background:#FEE2E2;color:#991B1B;border-color:#FCA5A5}.br:hover{background:#FECACA}
+table{width:100%;border-collapse:collapse;font-size:16px}
+th{text-align:left;font-weight:600;color:#888;padding:7px 10px;border-bottom:1px solid #E5E5E0;font-size:15px;white-space:nowrap}
+td{padding:10px 10px;border-bottom:1px solid #E5E5E0;color:#111;vertical-align:middle}
+tr:last-child td{border-bottom:none}tr:hover td{background:#FAFAFA}
+.pill{padding:3px 9px;border-radius:20px;font-size:15px;font-weight:600;white-space:nowrap;display:inline-block}
+.pw{background:#FEF3C7;color:#92400E}.ps{background:#D1FAE5;color:#065F46}.pd{background:#F3F4F6;color:#6B7280}.psk{background:#FEE2E2;color:#991B1B}
+.padm{background:#EDE9FE;color:#4C1D95}.pstf{background:#DBEAFE;color:#1E40AF}.pstu{background:#DCFCE7;color:#166534}
+.pop{background:#DCFCE7;color:#166534}.pcl{background:#FEE2E2;color:#991B1B}
+.pwt{background:#FEF3C7;color:#92400E}
+.pk{background:#FEF3C7;color:#92400E}.pap{background:#E0F2FE;color:#0369A1}
+.sreg{color:#1E40AF;font-weight:600}.scas{color:#065F46;font-weight:600}.sosa{color:#5B21B6;font-weight:600}
+.page{display:none}
+/* ── Maroon & cream theme ── */
+:root{--mar:#7B1F2B;--mar2:#8F2E3B;--cream:#FFF7F2;--peach:#FFF1E2;--line:#EFE0D3;--ink:#2B1A1A;--mute:#7A6A62;--gold:#D4A017}
+body{background:var(--cream);color:var(--ink)}
+.sidebar{background:var(--mar);border-right:none}
+.sidebar-logo{border-bottom:none;padding:20px 18px 12px}
+.sidebar-logo-img{background:#FFF7F2;border-radius:12px;padding:6px;width:52px;height:52px}
+.sidebar-logo h1{color:#fff;white-space:normal;line-height:1.15}.sidebar-logo p{color:#E8C9CC}
+.nav-sec{color:#E0B5BA;letter-spacing:.12em}
+.nav-item{color:#F6E6E6;border-radius:12px}
+.nav-item:hover{background:rgba(255,255,255,.10);color:#fff}
+.nav-item.active{background:var(--mar2);color:#fff;font-weight:700}
+.sidebar-foot{border-top:none}
+.uchip{background:var(--mar2)}
+.uchip div,.uchip #sb-name,.uchip #sb-role{color:#fff!important}
+.uchip #sb-role{color:#EBCFD2!important}
+.uchip .av{background:#FFF7F2;color:var(--mar)!important}
+.sidebar-foot button{background:transparent!important;border:1.5px solid rgba(255,255,255,.55)!important;color:#FBEAEA!important;border-radius:12px!important}
+.sidebar-foot button:hover{background:rgba(255,255,255,.12)!important}
+.topbar{background:#fff;border-bottom:1px solid var(--line)}
+.topbar h2{color:var(--ink)}.topbar p{color:var(--mute)}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px}
+.card-ttl{color:var(--ink)}
+.mc{background:var(--peach);border-radius:14px}
+.mc-lbl{color:var(--mute)}.mc-val{color:var(--mar)}
+.dash-mc .mc{background:#fff;border:1px solid var(--line)}
+.bp{background:var(--gold);border-color:var(--gold);color:#2B1B00;font-weight:600}
+.bp:hover{background:#C2950F}
+.card-hdr>.btn.bg{background:var(--gold);border-color:var(--gold);color:#2B1B00;font-weight:600}.card-hdr>.btn.bg:hover{background:#C2950F}
+.btn{border-color:#E7D5C7;color:#5B4A44}.btn:hover{background:var(--peach)}
+th{color:var(--mute);border-bottom:1px solid #EBDDD0}
+td{border-bottom:1px solid #F1E6DC;color:var(--ink)}
+tr:hover td{background:#FFF9F4}
+.sreg{color:#1D4ED8}.scas{color:#047857}.sosa{color:#B45309}
+.field input,.field select,.field textarea{border-color:#E7D5C7}
+.field input:focus,.field select:focus{outline:2px solid var(--mar)}
+.svc-tabs{border-bottom-color:#EBDDD0}
+.svc-tab.active{color:var(--mar);border-color:var(--mar)}
+.empty{color:var(--mute);border:1.5px dashed #E3CDBB;border-radius:12px;padding:26px;margin:2px 0}
+.page.active{display:block}
+/* ── Dashboard: Window status (grouped) ── */
+.ws-grp{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;background:#fff}
+.ws-hdr{display:flex;align-items:center;gap:8px;background:var(--peach);color:var(--mar);font-weight:700;font-size:16px;padding:9px 14px;border-bottom:1px solid var(--line)}
+.ws-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.ws-row:last-child{border-bottom:none}
+.ws-info{flex:1;min-width:0}.ws-nm{font-weight:700;font-size:16px;color:var(--ink)}.ws-sub{font-size:14px;color:var(--mute);margin-top:2px}
+.ws-dot{width:11px;height:11px;border-radius:50%;flex:none;display:inline-block}
+.ws-dot.open{background:#16A34A}.ws-dot.serving{background:var(--mar)}.ws-dot.closed{background:#9CA3AF}
+.ws-pill{padding:3px 12px;border-radius:20px;font-size:14px;font-weight:600;white-space:nowrap}
+.ws-pill.open{background:#DCFCE7;color:#166534}.ws-pill.serving{background:#F9E3E5;color:var(--mar)}.ws-pill.closed{background:#F3F4F6;color:#6B7280}
+.ws-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--mute);padding:6px 4px 0}
+.ws-legend span{display:inline-flex;align-items:center;gap:6px}.ws-sep{width:1px;height:14px;background:var(--line)}
+.empty{text-align:center;padding:30px;color:#aaa;font-size:17px;border:1px dashed #DDD;border-radius:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.wcard{border:1px solid #E5E5E0;border-radius:11px;padding:16px;background:#fff}
+.wcard.open{border-color:#86EFAC;background:#F0FDF4}
+.wnm{font-size:18px;font-weight:700}.wstf{font-size:16px;font-weight:600;color:#555;margin-top:5px}
+.wcnt{font-size:15px;color:#888;margin-top:3px}.wsrv{font-size:28px;font-weight:800;font-family:monospace;color:#1A56DB;margin-top:5px}
+.wact{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
+.ibox{background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:10px 12px;font-size:16px;color:#111;font-weight:500;margin-bottom:10px}
+#toast{position:fixed;bottom:22px;right:22px;background:#111;color:#fff;padding:10px 18px;border-radius:10px;font-size:17px;display:none;z-index:9999;max-width:300px}
+.login-wrap{position:fixed;inset:0;background:url('../assets/images/grc_building.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;z-index:9000;padding:20px}
+.login-wrap::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:0}.login-card{position:relative;z-index:1;background:#fff;border-radius:16px;padding:36px 40px;width:100%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,.4);border:1px solid #E5E5E0}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.login-logo-icon{width:48px;height:48px;object-fit:contain;flex-shrink:0}
+.login-logo-text h2{font-size:21px;font-weight:700;color:#111}
+.login-logo-text p{font-size:15px;color:#888;margin-top:2px}
+.lfield{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.lfield label{font-size:16px;font-weight:600;color:#555}
+.lfield input{padding:11px 13px;border:1.5px solid #ddd;border-radius:10px;font-size:17px;color:#111;width:100%;transition:border .2s}
+.lfield input:focus{outline:none;border-color:#1A56DB}
+.lbtn{width:100%;padding:13px;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer;border:none;background:#8B0000;color:#fff;margin-top:6px;transition:background .15s}
+.lbtn:hover{background:#1E40AF}.lbtn:disabled{background:#93C5FD;cursor:not-allowed}
+.lerr{background:#FEE2E2;border:1px solid #FCA5A5;border-radius:8px;padding:9px 12px;font-size:16px;color:#991B1B;margin-top:10px;display:none}
+</style>
+</head><body>
+<!-- LOGIN OVERLAY -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="../assets/images/grc_logo.png" alt="GRC" class="login-logo-icon">
+      <div class="login-logo-text">
+        <h2>Queue Tracker</h2>
+        <p>GRC Admin &amp; Staff Portal</p>
+      </div>
+    </div>
+    <div class="lfield">
+      <label>Username</label>
+      <input id="l-user" type="text" placeholder="admin" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="lfield">
+      <label>Password</label>
+      <input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="lbtn" id="l-btn" onclick="doLogin()">Log in</button>
+    <div class="lerr" id="l-err"></div>
+  </div>
+</div>
+
+<div id="pw-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9500;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:14px;padding:26px;width:100%;max-width:440px">
+    <h2 style="font-size:22px;margin-bottom:6px">Change your password</h2>
+    <p style="font-size:15px;color:#555;margin-bottom:14px">You are using a temporary password. Choose a new password to continue.</p>
+    <div class="field"><label>Temporary (current) password</label><input id="pm-cur" type="password" autocomplete="current-password"></div>
+    <div class="field"><label>New password (min 8 characters)</label><input id="pm-new" type="password" autocomplete="new-password"></div>
+    <div class="field"><label>Confirm new password</label><input id="pm-cf" type="password" autocomplete="new-password"></div>
+    <div id="pm-err" style="display:none;color:#991B1B;font-size:15px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px"><button class="btn bp" style="flex:1" onclick="submitPwChange()">Save new password</button><button class="btn" onclick="doLogout();document.getElementById('pw-modal').style.display='none'">Log out</button></div>
+  </div>
+</div>
+<div class="app" id="main-app" style="display:none">
+<div class="sidebar">
+  <div class="sidebar-logo"><img src="../assets/images/grc_logo.png" alt="GRC" class="sidebar-logo-img"><div><h1>Queue Tracking System</h1><p>GRC Admin Dashboard</p></div></div>
+  <div class="nav-sec">Main</div>
+  <div class="nav-item active" onclick="nav('dashboard',this)">🏠 Dashboard</div>
+  <div class="nav-item" onclick="nav('queue',this)">📋 Queue monitor</div>
+  <div class="nav-item" onclick="nav('windows',this)">🪟 Service windows</div>
+  <div class="nav-item admin-only" onclick="nav('reports',this)">📊 Reports</div>
+  <div class="nav-item admin-only" onclick="nav('analytics',this)">📈 Analytics</div>
+  <div class="nav-item" onclick="window.open('control_panel.html','_blank')">⚙️ Control Panel</div>
+  <div class="nav-sec admin-only">Admin</div>
+  <div class="nav-item admin-only" onclick="nav('users',this)">👤 User management</div>
+  <div class="nav-item admin-only" onclick="nav('pwd',this)">♿ PWD verification</div>
+  <div class="nav-item admin-only" onclick="nav('usernew',this)">➕ Create account</div>
+  <div class="nav-item admin-only" onclick="nav('logs',this)">📝 Activity logs</div>
+  <div class="nav-sec">Screens</div>
+  <div class="nav-item" onclick="window.open('../display/display.php','_blank')">📺 Open display</div>
+  <div class="sidebar-foot">
+    <div class="uchip" style="margin-bottom:8px">
+      <div class="av" id="sb-av">AD</div>
+      <div><div style="font-size:15px;font-weight:600" id="sb-name">Admin</div><div style="font-size:14px;color:#888" id="sb-role">Administrator</div></div>
+    </div>
+    <button onclick="doLogout()" style="width:100%;padding:7px;border-radius:8px;font-size:15px;cursor:pointer;border:1px solid #FCA5A5;background:#FEE2E2;color:#991B1B;font-weight:500">Log out</button>
+  </div>
+</div>
+<div class="main">
+  <div class="topbar"><div><h2 id="pg-title">Dashboard</h2><p id="pg-sub">Real-time overview of all queues</p></div>
+    <div style="display:flex;align-items:center;gap:10px"><span class="opill"><span class="dg"></span>System online</span><span id="clk" style="font-size:15px;color:#888;font-family:monospace"></span></div></div>
+  <div class="content">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="pg-dashboard">
+    <div class="card" style="margin-bottom:14px;padding:12px 16px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:17px;font-weight:600;color:#555">Viewing date:</span>
+        <input type="date" id="dash-dt" onchange="loadDash()" style="padding:6px 10px;border:1px solid #DDD;border-radius:8px;font-size:16px">
+        <button class="btn bp" style="padding:6px 14px;font-size:16px" onclick="document.getElementById('dash-dt').value=new Date().toISOString().slice(0,10);loadDash()">Today</button>
+        <button class="btn" style="padding:6px 14px;font-size:16px" onclick="const d=new Date();d.setDate(d.getDate()-1);document.getElementById('dash-dt').value=d.toISOString().slice(0,10);loadDash()">Yesterday</button>
+        <span id="dash-date-lbl" style="font-size:15px;color:#888;margin-left:auto"></span>
+      </div>
+    </div>
+    <div>
+      <div>
+        <div class="mc-grid dash-mc">
+          <div class="mc"><div class="mc-lbl">Total tickets</div><div class="mc-val" id="d-tot">0</div></div>
+          <div class="mc"><div class="mc-lbl">Waiting</div><div class="mc-val" id="d-wait">0</div></div>
+          <div class="mc"><div class="mc-lbl">Serving</div><div class="mc-val" id="d-srv">0</div></div>
+          <div class="mc"><div class="mc-lbl">Served</div><div class="mc-val" id="d-done">0</div></div>
+        </div>
+        <div class="g2" style="margin-bottom:14px">
+          <div class="card"><div class="card-hdr"><span class="card-ttl">By service</span></div>
+            <table><thead><tr><th>Service</th><th>Waiting</th><th>Serving</th><th>Served</th><th>Total</th></tr></thead><tbody id="d-svc-tbl"></tbody></table></div>
+          <div class="card"><div class="card-hdr"><span class="card-ttl">Window status</span></div><div id="d-win-st"></div></div>
+        </div>
+        <div class="card"><div class="card-hdr"><span class="card-ttl">Live queue — all services</span><button class="btn bg" onclick="callNextAll()">Auto call next ▶</button></div><div id="d-q-body"><div class="empty">No active tickets.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUEUE MONITOR -->
+  <div class="page" id="pg-queue">
+    <div class="svc-tabs">
+      <div class="svc-tab active" onclick="setTab('all',this)">All <span class="tbadge tball" id="qb-all">0</span></div>
+      <div class="svc-tab" onclick="setTab('Registrar',this)">🎓 Registrar <span class="tbadge tbreg" id="qb-Registrar">0</span></div>
+      <div class="svc-tab tc" onclick="setTab('Cashier',this)">💳 Cashier <span class="tbadge tbcas" id="qb-Cashier">0</span></div>
+      <div class="svc-tab to" onclick="setTab('OSA',this)">🤝 OSA <span class="tbadge tbosa" id="qb-OSA">0</span></div>
+    </div>
+    <!-- Pause status banners per service -->
+    <div id="pause-banners" style="margin-bottom:8px"></div>
+    <div class="card"><div class="card-hdr"><span class="card-ttl" id="q-ttl">All tickets</span>
+      <div style="display:flex;gap:7px;align-items:center">
+        <select id="q-st" onchange="loadQ()" style="padding:5px 9px;border:1px solid #DDD;border-radius:8px;font-size:15px"><option value="">All status</option><option>Waiting</option><option>Serving</option><option>Served</option><option>Skipped</option></select>
+        <button class="btn" id="q-pause-btn" style="background:#FEF3C7;color:#92400E;font-size:15px;display:none" onclick="toggleQueuePause()">⏸ Pause Queue</button>
+        <button class="btn bg" onclick="callNext()">Call next</button></div></div>
+      <div id="q-body"><div class="empty">No tickets.</div></div></div>
+  </div>
+
+  <!-- SERVICE WINDOWS -->
+  <div class="page" id="pg-windows">
+    <div class="card admin-only"><div class="card-hdr"><span class="card-ttl">Add service window</span></div>
+      <div class="ibox">⚠️ Each window handles <strong>one service type only</strong>. Registrar tickets only appear on Registrar windows — never on Cashier or OSA windows.</div>
+      <div class="g2">
+        <div class="field"><label>Window name</label><input id="wn-nm" placeholder="e.g. Window 1"></div>
+        <div class="field"><label>Service type</label><select id="wn-svc"><option value="">Select service type</option><option value="Registrar">🎓 Registrar</option><option value="Cashier">💳 Cashier</option><option value="OSA">🤝 OSA</option></select></div>
+        <div class="field"><label>Assign staff</label><select id="wn-stf"><option value="">Select staff member</option></select></div>
+      </div>
+      <button class="btn bp" onclick="addWin()">Add window</button></div>
+    <div class="card"><div class="card-hdr"><span class="card-ttl">Service windows</span><span id="win-badge" style="font-size:15px;color:#888">0 windows</span></div><div class="wgrid" id="win-grid"><div class="empty">No windows yet.</div></div></div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="page" id="pg-reports">
+    <div class="card"><div class="card-hdr"><span class="card-ttl">Generate report</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="field"><label>Report type</label><select id="rep-tp"><option value="">Select type</option><option>Daily summary</option><option>Weekly performance</option><option>Monthly analysis</option><option>ML model accuracy</option></select></div>
+        <div class="field"><label>Service</label><select id="rep-svc"><option value="">All Services</option><option value="Registrar">🎓 Registrar</option><option value="Cashier">💳 Cashier</option><option value="OSA">🤝 OSA</option></select></div>
+        <div class="field"><label>Date</label><input id="rep-dt" type="date"></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn bp" onclick="genRep()">Generate report</button>
+        <button class="btn" onclick="printRep()" style="display:flex;align-items:center;gap:6px">🖨️ Print report</button>
+        <button class="btn" onclick="openComparisonReport()" style="display:flex;align-items:center;gap:6px;background:#F0FDF4;color:#065F46;border-color:#86EFAC">📋 Comparison report</button>
+      </div>
+    </div>
+    <div class="g2" id="rep-results" style="display:none">
+      <div class="card"><div class="card-hdr"><span class="card-ttl">Summary</span><span id="r-date-lbl" style="font-size:15px;color:#888"></span></div>
+        <div class="mc-grid" style="grid-template-columns:1fr 1fr">
+          <div class="mc"><div class="mc-lbl">Total tickets</div><div class="mc-val" id="r-tot">0</div></div>
+          <div class="mc"><div class="mc-lbl">Served</div><div class="mc-val" id="r-srv">0</div></div>
+          <div class="mc"><div class="mc-lbl">Skipped</div><div class="mc-val" id="r-sk">0</div></div>
+          <div class="mc"><div class="mc-lbl">Completion rate</div><div class="mc-val" id="r-pct">—</div></div></div></div>
+      <div class="card"><div class="card-hdr"><span class="card-ttl">By service type</span></div><div id="r-brkd"><div class="empty">No data.</div></div></div>
+    </div>
+    <!-- Transaction report table (from queue tickets) -->
+    <div class="card" id="rep-tx-table" style="display:none;margin-top:14px">
+      <div class="card-hdr">
+        <span class="card-ttl">📄 Transaction Report</span>
+        <span id="rep-tx-lbl" style="font-size:15px;color:#888"></span>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+          <span style="font-size:15px;font-weight:700;color:#555">Columns:</span>
+          <button class="btn" style="font-size:15px" onclick="repPreset('min')">Minimal</button>
+          <button class="btn" style="font-size:15px" onclick="repPreset('std')">Standard</button>
+          <button class="btn" style="font-size:15px" onclick="repPreset('full')">Full report</button>
+          <span style="margin-left:auto;font-size:15px;font-weight:700;color:#555">Print layout:</span>
+          <select id="rep-orient" onchange="renderRepTable()" style="font-size:15px;padding:5px 8px"><option value="auto">Auto</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select>
+          <span id="rep-orient-lbl" style="font-size:15px;color:#888"></span>
+        </div>
+        <div id="rep-cols" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div id="rep-totals" style="margin-bottom:12px"></div>
+      <div style="overflow-x:auto"><div id="rep-tx-body"><div class="empty">Loading…</div></div></div>
+    </div>
+  </div>
+
+  <!-- USERS (Admin only) -->
+  <div class="page" id="pg-users">
+    <div class="card"><div class="card-hdr"><span class="card-ttl">Accounts</span><button class="btn bp" onclick="gotoPage('usernew')">➕ Create account</button></div>
+      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:9px 12px;font-size:15px;color:#1E40AF">
+        ℹ️ Admin and Staff accounts are created only by an Admin on the Create account page. Students register in the mobile app.
+      </div></div>
+    <div class="card"><div class="card-hdr"><span class="card-ttl">Admin &amp; Staff accounts</span><span id="u-cnt" style="font-size:15px;color:#888">0 accounts</span></div><div id="u-list"><div class="empty">No accounts.</div></div></div>
+  </div>
+
+  <!-- CREATE ACCOUNT (Admin only — enforced on the server) -->
+  <div class="page" id="pg-usernew">
+    <div class="card"><div class="card-hdr"><span class="card-ttl">Create account</span></div>
+      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:9px 12px;font-size:15px;color:#1E40AF;margin-bottom:12px">
+        ℹ️ Only a logged-in Admin can create accounts. The new user must change this temporary password the first time they log in.
+      </div>
+      <div class="g2">
+        <div class="field"><label>Role</label><select id="n-rl" onchange="onNewRole()"><option value="">Select role</option><option value="Admin">Admin</option><option value="Staff">Staff</option></select></div>
+        <div class="field"><label>Full name</label><input id="n-nm" placeholder="Full name"></div>
+        <div class="field"><label>Email</label><input id="n-em" type="email" placeholder="email@grc.edu.ph"></div>
+        <div class="field"><label>Username</label><input id="n-un" placeholder="e.g. staff.ramos or admin2"></div>
+        <div class="field"><label>Temporary password</label>
+          <div style="display:flex;gap:8px"><input id="n-pw" type="text" placeholder="Min 8 characters" autocomplete="off"><button class="btn" type="button" onclick="genTempPw()">Generate</button></div></div>
+      </div>
+      <div id="n-staff" style="display:none">
+        <div style="font-size:15px;font-weight:700;color:#555;margin:6px 0 8px">Staff details</div>
+        <div class="g2">
+          <div class="field"><label>Department / Service</label><select id="n-dp"><option value="">Select department</option><option>Registrar</option><option>Cashier</option><option>OSA</option></select></div>
+          <div class="field"><label>Position</label><input id="n-ps" placeholder="e.g. Registrar Clerk"></div>
+          <div class="field"><label>Employee ID</label><input id="n-ei" placeholder="e.g. EMP-001"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:6px"><button class="btn bp" onclick="createUser()">Create account</button><button class="btn" onclick="gotoPage('users')">Cancel</button></div>
+      <div id="n-result" style="display:none;margin-top:14px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px 14px;font-size:15px"></div>
+    </div>
+  </div>
+
+  <!-- PWD VERIFICATION (Admin only — enforced on the server) -->
+  <div class="page" id="pg-pwd">
+    <div class="card"><div class="card-hdr"><span class="card-ttl">PWD verification</span><span id="pwd-cnt" style="font-size:14px;color:#888"></span></div>
+      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:9px 12px;font-size:15px;color:#1E40AF;margin-bottom:12px">
+        ℹ️ Compare the PWD ID number and the photo of the ID before approving. Verified students can use the Priority Lane and are served first.
+      </div>
+      <div id="pwd-tabs" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>
+      <div id="pwd-list" style="overflow-x:auto"></div>
+    </div>
+  </div>
+  <div id="pwd-photo-modal" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9400;align-items:center;justify-content:center;padding:20px;cursor:zoom-out">
+    <img id="pwd-photo-img" alt="PWD ID" style="max-width:92vw;max-height:88vh;border-radius:10px;background:#fff">
+  </div>
+
+  <!-- LOGS -->
+  <div class="page" id="pg-logs">
+    <div class="card"><div class="card-hdr"><span class="card-ttl">Activity audit trail</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="date" id="log-dt" onchange="loadLogs()" style="padding:5px 9px;border:1px solid #DDD;border-radius:8px;font-size:15px">
+        <select id="log-f" onchange="loadLogs()" style="padding:5px 9px;border:1px solid #DDD;border-radius:8px;font-size:15px">
+          <option value="">All actions</option><option value="login">Login</option><option value="ticket_issued">Ticket issued</option><option value="ticket_called">Ticket called</option><option value="ticket_served">Ticket served</option><option value="ticket_skipped">Ticket skipped</option><option value="window_toggle">Window open/close</option><option value="window_created">Window created</option></select>
+        <button class="btn" style="padding:5px 12px;font-size:15px" onclick="document.getElementById('log-dt').value=new Date().toISOString().slice(0,10);loadLogs()">Today</button>
+        <button class="btn" style="padding:5px 12px;font-size:15px" onclick="const d=new Date();d.setDate(d.getDate()-1);document.getElementById('log-dt').value=d.toISOString().slice(0,10);loadLogs()">Yesterday</button>
+      </div></div>
+      <div id="log-body"><div class="empty">Select a date to view logs.</div></div></div>
+  </div>
+
+  <!-- ANALYTICS PAGE -->
+  <div class="page" id="pg-analytics">
+    <!-- Header with date range -->
+    <div class="card" style="margin-bottom:14px;padding:12px 16px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between">
+        <div>
+          <div style="font-size:19px;font-weight:700;color:#111">Analytics Overview</div>
+          <div style="font-size:15px;color:#888">Real-time insights and performance metrics</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label style="font-size:15px;font-weight:600;color:#555">From</label>
+          <input type="date" id="an-dt" onchange="loadAnalytics()" style="padding:6px 10px;border:1px solid #DDD;border-radius:8px;font-size:16px">
+          <label style="font-size:15px;font-weight:600;color:#555">To</label>
+          <input type="date" id="an-dt2" onchange="loadAnalytics()" style="padding:6px 10px;border:1px solid #DDD;border-radius:8px;font-size:16px">
+          <button class="btn bp" style="padding:6px 14px;font-size:16px" onclick="document.getElementById('an-dt').value=new Date().toISOString().slice(0,10);document.getElementById('an-dt2').value='';loadAnalytics()">Today</button>
+          <button class="btn" style="padding:6px 14px;font-size:16px" onclick="const d=new Date();d.setDate(d.getDate()-1);document.getElementById('an-dt').value=d.toISOString().slice(0,10);document.getElementById('an-dt2').value='';loadAnalytics()">Yesterday</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 4 stat cards -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px" id="an-stats">
+      <div class="mc"><div class="mc-lbl">Total Transactions</div><div class="mc-val" id="an-total">—</div><div style="font-size:14px;color:#888" id="an-total-sub"></div></div>
+      <div class="mc"><div class="mc-lbl">Avg Waiting Time</div><div class="mc-val" id="an-avgwait">—</div><div style="font-size:14px;color:#888" id="an-wait-sub"></div></div>
+      <div class="mc"><div class="mc-lbl">Avg Service Time</div><div class="mc-val" id="an-avgsvc">—</div><div style="font-size:14px;color:#888" id="an-svc-sub"></div></div>
+      <div class="mc"><div class="mc-lbl">Served Today</div><div class="mc-val" id="an-served">—</div><div style="font-size:14px;color:#888" id="an-served-sub"></div></div>
+    </div>
+
+    <!-- Charts row 1 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <!-- Transaction Volume by Service -->
+      <div class="card">
+        <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+          <span class="card-ttl">Transaction Volume by Service</span>
+          <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><span id="an-pct-vol" style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"></span><button onclick="toggleChartTable('vol')" id="btn-vol" style="font-size:14px;color:#1A56DB;background:none;border:1px solid #1A56DB;border-radius:6px;padding:3px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap">▶ Show as table</button></span>
+        </div>
+        <div id="an-range-vol" style="font-size:14px;color:#555;background:#F8F8F6;border-radius:8px;padding:5px 10px;margin-bottom:8px"></div>
+        <canvas id="chart-service-vol" height="200"></canvas>
+        <div id="tbl-vol" style="display:none;overflow-x:auto;margin-top:8px"></div>
+        <div style="font-size:14px;color:#888;text-align:center;margin-top:6px;font-style:italic">Number of transactions (tickets issued) per service office for the selected date.</div>
+        <div id="an-vol-interp" style="font-size:15px;color:#444;margin-top:8px;padding:8px 10px;background:#F8F8F6;border-radius:8px;border-left:3px solid #1A56DB;display:none"></div>
+      </div>
+      <!-- Peak Hours Analysis -->
+      <div class="card">
+        <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+          <span style="display:flex;align-items:center;gap:8px"><span class="card-ttl">Peak Hours Analysis</span><span id="an-peak-lbl" style="font-size:15px;color:#888"></span></span>
+          <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><span id="an-pct-peak" style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"></span><button onclick="toggleChartTable('peak')" id="btn-peak" style="font-size:14px;color:#1A56DB;background:none;border:1px solid #1A56DB;border-radius:6px;padding:3px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap">▶ Show as table</button></span>
+        </div>
+        <div id="an-range-peak" style="font-size:14px;color:#555;background:#F8F8F6;border-radius:8px;padding:5px 10px;margin-bottom:8px"></div>
+        <canvas id="chart-peak" height="200"></canvas>
+        <div id="tbl-peak" style="display:none;overflow-x:auto;margin-top:8px"></div>
+        <div style="font-size:14px;color:#888;text-align:center;margin-top:6px;font-style:italic">Ticket issuance count per hour (8 AM – 5 PM). Identifies the busiest time of day.</div>
+        <div id="an-peak-interp" style="font-size:15px;color:#444;margin-top:8px;padding:8px 10px;background:#F8F8F6;border-radius:8px;border-left:3px solid #059669;display:none"></div>
+      </div>
+    </div>
+
+    <!-- Charts row 2 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <!-- Average Waiting Time for Transaction (horizontal bar) -->
+      <div class="card">
+        <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+          <span class="card-ttl">Average Waiting Time for Transaction</span>
+          <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><span id="an-pct-wait" style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"></span><button onclick="toggleChartTable('wait')" id="btn-wait" style="font-size:14px;color:#1A56DB;background:none;border:1px solid #1A56DB;border-radius:6px;padding:3px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap">▶ Show as table</button></span>
+        </div>
+        <div id="an-range-wait" style="font-size:14px;color:#555;background:#F8F8F6;border-radius:8px;padding:5px 10px;margin-bottom:8px"></div>
+        <canvas id="chart-avgwait" height="160"></canvas>
+        <div id="tbl-wait" style="display:none;overflow-x:auto;margin-top:8px"></div>
+        <div style="font-size:14px;color:#888;text-align:center;margin-top:6px;font-style:italic">Average time (in minutes) a student waits from ticket issuance until called to the window.</div>
+        <div id="an-wait-interp" style="font-size:15px;color:#444;margin-top:8px;padding:8px 10px;background:#F8F8F6;border-radius:8px;border-left:3px solid #7C3AED;display:none"></div>
+      </div>
+      <!-- System Insights & Recommendations (AI) -->
+      <div class="card">
+        <div class="card-hdr"><span class="card-ttl">🤖 System Insights & Recommendations</span></div>
+        <div id="an-insights"><div class="empty" style="font-size:15px">Loading AI insights…</div></div>
+      </div>
+    </div>
+  </div>
+
+  
+    </div>
+
+  </div>
+</div>
+</div><!-- /main-app -->
+<div id="toast"></div>
+<script src="chart.min.js"></script>
+<script>
+// API URL — change this when your tunnel URL changes
+if(window.Chart){Chart.defaults.font.size=15;}
+const API=window.location.hostname==='localhost'?'http://localhost/queue_system/backend/api':'https://grcqueue2.serveousercontent.com/queue_system/backend/api';
+const SVCS=['Registrar','Cashier','OSA'];
+const ICN={Registrar:'🎓',Cashier:'💳',OSA:'🤝'};
+const SC={Registrar:'sreg',Cashier:'scas',OSA:'sosa'};
+let curTab='all';
+let SESSION=JSON.parse(sessionStorage.getItem('qts_admin_session')||'null');
+
+// ── LOGIN / SESSION ────────────────────────────────────────────
+async function doLogin(){
+  const user=document.getElementById('l-user').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  const btn=document.getElementById('l-btn');
+  const err=document.getElementById('l-err');
+  if(!user||!pass){showErr('Please enter your username and password.');return;}
+  btn.disabled=true;btn.textContent='Logging in…';err.style.display='none';
+  try{
+    const resp=await fetch(API+'/auth.php',{method:'POST',headers:{'Content-Type':'application/json','bypass-tunnel-reminder':'true','User-Agent':'GRCQueueAdmin/1.0'},body:JSON.stringify({action:'login',username:user,password:pass})});
+    const data=await resp.json();
+    if(data.success){
+      const role=data.user.role;
+      if(role!=='Admin'&&role!=='Staff'){showErr('Access denied. Only Admin and Staff accounts can log in here.');btn.disabled=false;btn.textContent='Log in';return;}
+      SESSION=data;sessionStorage.setItem('qts_admin_session',JSON.stringify(data));
+      showDashboard();
+    }else{showErr(data.error||'Invalid username or password.');btn.disabled=false;btn.textContent='Log in';}
+  }catch(e){showErr('Cannot connect to server. Check your network.');btn.disabled=false;btn.textContent='Log in';}
+}
+function showErr(m){const e=document.getElementById('l-err');e.textContent=m;e.style.display='block';}
+function showDashboard(){
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  document.getElementById('sb-name').textContent=SESSION.user.full_name;
+  document.getElementById('sb-role').textContent=SESSION.user.role;
+  document.getElementById('sb-av').textContent=SESSION.user.full_name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
+  // Role-based nav: Staff only sees Dashboard, Queue, Windows
+  const isAdmin = SESSION.user.role === 'Admin';
+  document.querySelectorAll('.admin-only').forEach(el=>{
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  loadDash();
+  if(SESSION.user.must_change_password){document.getElementById('pw-modal').style.display='flex';}
+}
+function doLogout(){
+  sessionStorage.removeItem('qts_admin_session');SESSION=null;
+  document.getElementById('login-wrap').style.display='flex';
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('l-pass').value='';
+  document.getElementById('l-err').style.display='none';
+  document.getElementById('l-btn').disabled=false;
+  document.getElementById('l-btn').textContent='Log in';
+}
+// Restore session on page load
+if(SESSION){showDashboard();}
+// Use session user id in API calls
+function staffId(){return SESSION?.user?.user_id||1;}
+
+function toast(m,ok=true){const t=document.getElementById('toast');t.textContent=m;t.style.background=ok?'#111':'#991B1B';t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+function tick(){document.getElementById('clk').textContent=new Date().toTimeString().slice(0,8);}
+setInterval(tick,1000);tick();
+
+const META={
+  dashboard:['Dashboard','Real-time overview of all queues'],
+  queue:['Queue monitor','Live tickets by service type'],
+  windows:['Service windows','Manage windows, staff, and queues'],
+  reports:['Reports','Operational analytics'],
+  analytics:['Analytics','Charts and insights for decision making'],
+  users:['User management','Manage Admin and Staff accounts'],
+  usernew:['Create account','Add a new Admin or Staff account'],
+  pwd:['PWD verification','Review PWD ID submissions for the Priority Lane'],
+  logs:['Activity logs','Full audit trail']
+};
+function gotoPage(n){const el=[...document.querySelectorAll('.nav-item')].find(x=>(x.getAttribute('onclick')||'').includes("'"+n+"'"));nav(n,el);}
+function nav(n,el){
+  if(['users','usernew','pwd','logs'].includes(n)&&(!SESSION||SESSION.user.role!=='Admin')){toast('Admin access only.',false);return;}
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('pg-'+n).classList.add('active');if(el)el.classList.add('active');
+  const m=META[n]||[n,''];document.getElementById('pg-title').textContent=m[0];document.getElementById('pg-sub').textContent=m[1];
+  if(n==='dashboard')loadDash();if(n==='queue')loadQ();
+  if(n==='windows'){loadWins();loadStaff();}
+  if(n==='users')loadUsers();
+  if(n==='pwd')loadPwd();
+  if(n==='usernew'){document.getElementById('n-result').style.display='none';}
+  if(n==='logs'){
+    if(!document.getElementById('log-dt').value)
+      document.getElementById('log-dt').value=new Date().toISOString().slice(0,10);
+    loadLogs();
+  }
+  if(n==='reports'){
+    // Set today's date as default and auto-load report
+    const today=new Date().toISOString().slice(0,10);
+    document.getElementById('rep-dt').value=today;
+    loadRep(today);
+  }
+}
+async function api(ep,opts={}){
+  // Staff accounts only get their own assigned window(s) from windows.php
+  if(ep.startsWith('/windows.php')&&SESSION?.user?.role==='Staff'){
+    const m=(opts.method||'GET').toUpperCase();
+    if(m==='GET'){ep+=(ep.includes('?')?'&':'?')+'user_id='+SESSION.user.user_id+'&role=Staff';}
+    else if(opts.body){try{const b=JSON.parse(opts.body);b.requester_role='Staff';opts={...opts,body:JSON.stringify(b)};}catch(e){}}
+  }
+  const r=await fetch(API+ep,{
+    headers:{
+      'Content-Type':'application/json',
+      'bypass-tunnel-reminder':'true',
+      'User-Agent':'GRCQueueAdmin/1.0',
+      ...(SESSION&&SESSION.token?{'X-Auth-Token':SESSION.token}:{}),
+      ...opts.headers
+    },
+    ...opts
+  });
+  if(r.status===401&&SESSION){toast('Session expired. Please log in again.',false);doLogout();}
+  return r.json();
+}
+function sPill(s){return '<span class="pill '+(s==='Waiting'?'pw':s==='Serving'?'ps':s==='Served'?'pd':'psk')+'">'+s+'</span>';}
+function sLbl(s){return '<span class="'+SC[s]+'">'+ICN[s]+' '+s+'</span>';}
+
+async function loadDash(){
+  const d=document.getElementById('dash-dt')?.value||new Date().toISOString().slice(0,10);
+  if(document.getElementById('dash-date-lbl'))document.getElementById('dash-date-lbl').textContent='Showing: '+d;
+  const[tr,wr]=await Promise.all([api('/tickets.php?date='+d),api('/windows.php')]);
+  const tk=tr.tickets||[];const ws=wr.windows||[];
+  document.getElementById('d-tot').textContent=tk.length;
+  document.getElementById('d-wait').textContent=tk.filter(t=>t.status==='Waiting').length;
+  document.getElementById('d-srv').textContent=tk.filter(t=>t.status==='Serving').length;
+  document.getElementById('d-done').textContent=tk.filter(t=>t.status==='Served').length;
+  document.getElementById('d-svc-tbl').innerHTML=SVCS.map(s=>{
+    const st=tk.filter(t=>t.service_type===s);
+    return '<tr><td>'+sLbl(s)+'</td><td>'+st.filter(t=>t.status==='Waiting').length+'</td><td>'+st.filter(t=>t.status==='Serving').length+'</td><td>'+st.filter(t=>t.status==='Served').length+'</td><td><strong>'+st.length+'</strong></td></tr>';
+  }).join('');
+  document.getElementById('d-win-st').innerHTML=ws.length?SVCS.map(svc=>{
+    const grp=ws.filter(w=>w.service_type===svc);
+    if(!grp.length)return '';
+    return '<div class="ws-grp"><div class="ws-hdr"><span class="ws-ic">'+ICN[svc]+'</span>'+svc+'</div>'+grp.map(w=>{
+      const sv=tk.find(t=>t.window_id===w.window_id&&t.status==='Serving');
+      const st=!+w.is_open?'closed':(sv?'serving':'open');
+      const lbl=st==='closed'?'Closed':(st==='serving'?'Serving':'Open');
+      return '<div class="ws-row"><span class="ws-dot '+st+'"></span><div class="ws-info"><div class="ws-nm">'+w.window_name+'</div><div class="ws-sub">'+svc+' - '+(w.staff_name||'Unassigned')+'</div></div><span class="ws-pill '+st+'"'+(sv?' title="Ticket '+sv.ticket_number+'"':'')+'>'+lbl+'</span></div>';
+    }).join('')+'</div>';
+  }).join('')+'<div class="ws-legend"><span><i class="ws-dot open"></i>Open</span><span class="ws-sep"></span><span><i class="ws-dot serving"></i>Occupied / Serving</span><span><i class="ws-dot closed"></i>Closed</span></div>':'<div class="empty">No windows configured.</div>';
+  const active=tk.filter(t=>t.status!=='Served'&&t.status!=='Skipped');
+  document.getElementById('d-q-body').innerHTML=active.length?
+    '<table><thead><tr><th>Ticket</th><th>Service</th><th>Name</th><th>Source</th><th>ERT</th><th>Status</th><th>Action</th></tr></thead><tbody>'+
+    active.map(t=>'<tr><td style="font-family:monospace;font-weight:700">'+t.ticket_number+pwdBadge(t)+(t.skip_count>0?'<span style="font-size:12px;color:#F59E0B;margin-left:4px">↩'+t.skip_count+'</span>':'')+'</td><td>'+sLbl(t.service_type)+'</td><td>'+(t.full_name||'—')+'</td><td><span class="pill pap">📱 mobile</span></td><td style="font-family:monospace">~'+(t.predicted_ert||'?')+'min</td><td>'+sPill(t.status)+'</td><td style="display:flex;gap:4px">'+(t.status==='Waiting'?'<button class="btn bg" style="font-size:14px;padding:3px 8px" onclick="callT('+t.ticket_id+',\''+t.service_type+'\')">Call</button>':'')+(t.status==='Serving'?'<button class="btn bp" style="font-size:14px;padding:3px 8px" onclick="serveT('+t.ticket_id+',\''+t.service_type+'\','+(t.window_id||'null')+')">Done✓</button>':'')+(t.status==='Waiting'?'<button class="btn br" style="font-size:14px;padding:3px 8px" title="'+(t.skip_count>=2?'Next skip is permanent':'Ticket returns to queue')+'" onclick="skipT('+t.ticket_id+')">'+(t.skip_count>=2?'Skip ⚠️':'Skip ↩')+'</button>':'')+'</td></tr>').join('')+
+    '</tbody></table>':'<div class="empty">No active tickets.</div>';
+}
+
+function setTab(s,el){
+  curTab=s;document.querySelectorAll('.svc-tab').forEach(t=>t.classList.remove('active'));if(el)el.classList.add('active');
+  document.getElementById('q-ttl').textContent=s==='all'?'All tickets':(ICN[s]||'')+' '+s+' queue';
+  // Show pause button only when a specific service is selected
+  const pb=document.getElementById('q-pause-btn');
+  if(pb)pb.style.display=s==='all'?'none':'inline-flex';
+  loadQ();
+}
+async function loadQ(){
+  const st=document.getElementById('q-st').value;let ep='/tickets.php?';const p=[];
+  if(curTab!=='all')p.push('service_type='+encodeURIComponent(curTab));if(st)p.push('status='+st);ep+=p.join('&');
+  const[res,wr,all]=await Promise.all([api(ep),api('/windows.php'),api('/tickets.php')]);
+  const tk=res.tickets||[];const allT=all.tickets||[];const ws=wr.windows||[];
+
+  // Update tab badges
+  document.getElementById('qb-all').textContent=allT.filter(t=>t.status==='Waiting').length;
+  SVCS.forEach(s=>{const el=document.getElementById('qb-'+s);if(el)el.textContent=allT.filter(t=>t.service_type===s&&t.status==='Waiting').length;});
+
+  // Show pause banners per service
+  const pausedSvcs=SVCS.filter(s=>ws.some(w=>w.service_type===s&&w.is_open==1&&w.queue_paused==1));
+  const bannerEl=document.getElementById('pause-banners');
+  if(bannerEl){
+    bannerEl.innerHTML=pausedSvcs.map(s=>
+      '<div style="display:flex;align-items:center;gap:10px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:9px 14px;margin-bottom:6px">'+
+      '<span style="font-size:19px">⏸</span>'+
+      '<span style="font-weight:700;color:#92400E">'+ICN[s]+' '+s+' queue is PAUSED</span>'+
+      '<span style="font-size:15px;color:#92400E">— No new tickets can be called. Click Resume to continue.</span>'+
+      '<button class="btn" style="margin-left:auto;background:#D1FAE5;color:#065F46;font-size:15px" onclick="resumeQueue(\''+s+'\')">▶ Resume '+s+'</button>'+
+      '</div>'
+    ).join('');
+  }
+
+  // Update pause button label for current tab
+  const pb=document.getElementById('q-pause-btn');
+  if(pb&&curTab!=='all'){
+    const isP=ws.some(w=>w.service_type===curTab&&w.is_open==1&&w.queue_paused==1);
+    pb.textContent=isP?'▶ Resume Queue':'⏸ Pause Queue';
+    pb.style.background=isP?'#D1FAE5':'#FEF3C7';
+    pb.style.color=isP?'#065F46':'#92400E';
+  }
+
+  // Render tickets table with purpose and year_section
+  document.getElementById('q-body').innerHTML=tk.length?
+    '<table><thead><tr><th>Ticket</th><th>Service</th><th>Name</th><th>Student ID</th><th>Purpose</th><th>Window</th><th>Issued</th><th>ERT</th><th>Status</th><th>Action</th></tr></thead><tbody>'+
+    tk.map(t=>'<tr>'+
+      '<td style="font-family:monospace;font-weight:700">'+t.ticket_number+pwdBadge(t)+(t.skip_count>0?'<span style="font-size:12px;color:#F59E0B;margin-left:4px">↩'+t.skip_count+'</span>':'')+'</td>'+
+      '<td>'+sLbl(t.service_type)+'</td>'+
+      '<td>'+(t.full_name||'—')+'</td>'+
+      '<td style="font-family:monospace;font-size:14px;color:#888">'+(t.student_id||'—')+'</td>'+
+      '<td style="font-size:14px;color:#555;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(t.purpose||'—')+'</td>'+
+      '<td style="font-size:14px">'+(t.window_name||'—')+'</td>'+
+      '<td style="font-family:monospace;font-size:14px">'+(t.issued_at||'').slice(11,16)+'</td>'+
+      '<td style="font-family:monospace">~'+(t.predicted_ert||'?')+'min</td>'+
+      '<td>'+sPill(t.status)+'</td>'+
+      '<td style="display:flex;gap:4px;flex-wrap:wrap">'+
+        (t.status==='Waiting'?'<button class="btn bg" style="font-size:14px;padding:3px 8px" onclick="callT('+t.ticket_id+',\''+t.service_type+'\')">Call</button>':'')+
+        (t.status==='Serving'?'<button class="btn bp" style="font-size:14px;padding:3px 8px" onclick="serveT('+t.ticket_id+',\''+t.service_type+'\','+(t.window_id||'null')+')">Done✓</button>':'')+
+        (t.status==='Waiting'?'<button class="btn br" style="font-size:14px;padding:3px 8px" title="'+(t.skip_count>=2?'Next skip is permanent':'Ticket returns to queue')+'" onclick="skipT('+t.ticket_id+')">'+(t.skip_count>=2?'Skip ⚠️':'Skip ↩')+'</button>':'')+
+      '</td>'+
+    '</tr>').join('')+
+    '</tbody></table>':'<div class="empty">No tickets found.</div>';
+}
+
+async function toggleQueuePause(){
+  if(curTab==='all'){toast('Select a specific service tab to pause.',false);return;}
+  const wr=await api('/windows.php');const ws=wr.windows||[];
+  const isP=ws.some(w=>w.service_type===curTab&&w.is_open==1&&w.queue_paused==1);
+  const win=ws.find(w=>w.service_type===curTab&&w.is_open==1);
+  if(!win){toast('No open '+curTab+' window found.',false);return;}
+  const r=await api('/windows.php',{method:'PUT',body:JSON.stringify({window_id:win.window_id,queue_paused:isP?0:1,admin_id:staffId()})});
+  toast(r.success?(isP?'▶ '+curTab+' queue resumed.':'⏸ '+curTab+' queue paused.'):(r.error||'Error'),r.success);
+  loadQ();
+}
+async function resumeQueue(svc){
+  const wr=await api('/windows.php');const ws=wr.windows||[];
+  const win=ws.find(w=>w.service_type===svc&&w.is_open==1);
+  if(!win){toast('No open '+svc+' window found.',false);return;}
+  const r=await api('/windows.php',{method:'PUT',body:JSON.stringify({window_id:win.window_id,queue_paused:0,admin_id:staffId()})});
+  toast(r.success?'▶ '+svc+' queue resumed.':(r.error||'Error'),r.success);loadQ();
+}
+
+// Picks an OPEN window of this service type that isn't currently
+// serving anyone — so with multiple windows per service (e.g. three
+// Registrar windows), calling next actually spreads tickets across
+// all of them instead of always reusing the first window found.
+async function getFreeWin(svc){
+  const [wr,tr]=await Promise.all([api('/windows.php'),api('/tickets.php')]);
+  const wins=(wr.windows||[]).filter(w=>w.service_type===svc&&w.is_open==1);
+  if(!wins.length)return null;
+  const tk=tr.tickets||[];
+  const busyWinIds=new Set(tk.filter(t=>t.status==='Serving').map(t=>t.window_id));
+  const free=wins.find(w=>!busyWinIds.has(w.window_id));
+  return (free||wins[0]).window_id;
+}
+async function callT(id,svc){
+  const wid=await getFreeWin(svc);if(!wid){toast('No open '+svc+' window. Open a '+svc+' window first.',false);return;}
+  const r=await api('/tickets.php',{method:'PUT',body:JSON.stringify({ticket_id:id,status:'Serving',window_id:wid,staff_id:staffId()})});
+  toast(r.success?'Ticket called!':(r.error||'Error'),r.success);loadDash();loadQ();
+}
+async function callNext(){
+  const svc=curTab==='all'?null:curTab;let ep='/tickets.php?status=Waiting';if(svc)ep+='&service_type='+encodeURIComponent(svc);
+  const res=await api(ep);const w=res.tickets||[];if(!w.length){toast('No waiting tickets.',false);return;}await callT(w[0].ticket_id,w[0].service_type);
+}
+async function callNextAll(){
+  for(const s of SVCS){const res=await api('/tickets.php?status=Waiting&service_type='+encodeURIComponent(s));const w=res.tickets||[];if(w.length)await callT(w[0].ticket_id,s);}
+}
+async function serveT(id,svc,winId){
+  // Reuse the window already assigned to this ticket (set when it was
+  // called) rather than looking one up again, which could silently
+  // reassign it to a different window when multiple are open.
+  const r=await api('/tickets.php',{method:'PUT',body:JSON.stringify({ticket_id:id,status:'Served',window_id:winId||null,staff_id:staffId()})});
+  toast(r.success?'Ticket served.':(r.error||'Error'),r.success);loadDash();loadQ();loadRep();
+}
+async function skipT(id){
+  const r=await api('/tickets.php',{method:'PUT',body:JSON.stringify({ticket_id:id,status:'Skipped',staff_id:staffId()})});
+  toast(r.success?'Ticket skipped.':(r.error||'Error'),r.success);loadDash();loadQ();
+}
+
+async function loadStaff(){
+  if(!SESSION||SESSION.user.role!=='Admin')return;
+  const res=await api('/users.php?role=Staff');
+  document.getElementById('wn-stf').innerHTML='<option value="">Select staff member</option>'+(res.users||[]).map(s=>'<option value="'+s.user_id+'">'+s.full_name+'</option>').join('');
+}
+async function callNextFromWindow(svc,winId){
+  const res=await api('/tickets.php?status=Waiting&service_type='+encodeURIComponent(svc));
+  const waiting=res.tickets||[];
+  if(!waiting.length){toast('No waiting tickets for '+svc+'.',false);return;}
+  const next=waiting[0];
+  const r=await api('/tickets.php',{method:'PUT',body:JSON.stringify({ticket_id:next.ticket_id,status:'Serving',window_id:winId,staff_id:staffId(),staff_role:SESSION?.user?.role||'Admin'})});
+  if(r.success){toast('📣 Called '+next.ticket_number+' to '+svc+' Window!');loadWins();loadDash();}
+  else{toast(r.error||'Error calling ticket.',false);}
+}
+async function serveTFromWindow(ticketId,svc,winId){
+  const r=await api('/tickets.php',{method:'PUT',body:JSON.stringify({ticket_id:ticketId,status:'Served',window_id:winId,staff_id:staffId()})});
+  if(r.success){toast('✅ Ticket marked as served.');loadWins();loadDash();}
+  else{toast(r.error||'Error.',false);}
+}
+async function loadWins(){
+  const[wr,tr]=await Promise.all([api('/windows.php'),api('/tickets.php')]);let ws=wr.windows||[];const tk=tr.tickets||[];
+  const isStaffUser=SESSION?.user?.role==='Staff';
+  if(isStaffUser)ws=ws.filter(w=>parseInt(w.assigned_staff_id)===staffId());
+  document.getElementById('win-badge').textContent=ws.length+(isStaffUser?' window (assigned)':' windows');const grid=document.getElementById('win-grid');
+  if(!ws.length){grid.style.cssText='';grid.innerHTML=isStaffUser?'<div class="empty">No window assigned to your account. Ask Admin to assign you a window.</div>':'<div class="empty">No windows yet.</div>';return;}
+
+  // ── STAFF: single centered card for their own window ──────────
+  if(isStaffUser){
+    const w=ws[0];
+    const svc=w.service_type;
+    const sv=tk.find(t=>t.window_id===w.window_id&&t.status==='Serving');
+    const wIsOpen=parseInt(w.is_open)==1;
+    const paused=parseInt(w.skip_paused)==1;
+    const wt=tk.filter(t=>t.service_type===svc&&t.status==='Waiting').length;
+    const wid=w.window_id;
+    const middleBox=sv?
+      `<div style="background:#fff8f8;border:2px solid #8B0000;border-radius:12px;padding:24px;margin-bottom:24px">
+        <div style="text-align:center;margin-bottom:12px">
+          <div style="font-size:90px;font-weight:800;font-family:monospace;color:#8B0000;line-height:1">${sv.ticket_number}</div>${pwdBadge(sv,true)}
+          <div style="font-size:19px;font-weight:700;color:#8B0000;margin-top:6px">🔔 Now Serving</div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:17px;line-height:2">
+          <div><strong>👤 Name:</strong> ${sv.full_name||sv.walkin_name||'—'}</div>
+          <div><strong>🪪 Student ID:</strong> ${sv.student_id||sv.walkin_id||'—'}</div>
+          <div><strong>📋 Purpose:</strong> ${sv.purpose||'—'}</div>
+        </div>
+        <button class="btn bp" style="width:100%;font-size:20px;padding:12px 0;font-weight:700;background:#059669;color:#fff;border-color:#059669" onclick="serveTFromWindow(${sv.ticket_id},'${svc}',${wid})">✅ Done — Mark as Served</button>
+      </div>`:
+      `<div style="text-align:center;background:#f9f9f8;border:2px solid #ddd;border-radius:12px;padding:32px;margin-bottom:24px">
+        <div style="font-size:28px;color:#777;font-weight:600;letter-spacing:2px">— Ready —</div>
+        <div style="font-size:17px;color:#aaa;margin-top:8px">Waiting for next ticket</div>
+      </div>`;
+    grid.style.display='flex';grid.style.justifyContent='center';grid.style.alignItems='flex-start';grid.style.padding='10px 0';
+    grid.innerHTML=`<div style="width:100%;max-width:520px">
+      <div style="border:2px solid #111;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.08)">
+        <div style="display:flex;align-items:center;gap:16px;padding:22px 30px;background:#fff;border-bottom:2px solid #111">
+          <span style="font-size:36px">${ICN[svc]}</span>
+          <div>
+            <div style="font-size:25px;font-weight:700;color:#111">${svc}</div>
+            <div style="font-size:18px;color:#333;font-weight:600">${wt} student${wt!==1?'s':''} waiting</div>
+          </div>
+        </div>
+        <div style="padding:30px 32px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+            <div style="font-size:28px;font-weight:800;color:#000">${w.window_name}</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              ${paused?'<span style="background:#FEF3C7;color:#92400E;font-size:16px;padding:5px 14px;border-radius:20px;font-weight:700">⏸ Paused</span>':''}
+              <span class="pill ${wIsOpen?'pop':'pcl'}" style="font-size:17px;padding:5px 16px">${wIsOpen?'Open':'Closed'}</span>
+            </div>
+          </div>
+          <div style="font-size:21px;font-weight:600;color:#111;margin-bottom:20px">👤 ${w.staff_name||'<span style="color:#888">Unassigned</span>'}</div>
+          ${middleBox}
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+            ${wIsOpen?`<button class="btn bp" style="flex:1;font-size:21px;padding:14px 0;font-weight:700;background:#1A56DB;color:#fff;border-color:#1A56DB" onclick="callNextFromWindow('${svc}',${wid})">📣 Call Next</button>`:''}
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn ${wIsOpen?'br':'bg'}" style="flex:1;font-size:18px;padding:10px 0;font-weight:600" onclick="togWin(${wid},${wIsOpen?0:1})">${wIsOpen?'Close Window':'Open Window'}</button>
+            ${wIsOpen?`<button class="btn" style="flex:1;font-size:18px;padding:10px 0;font-weight:600;background:${paused?'#D1FAE5;color:#065F46':'#FEF3C7;color:#92400E'}" onclick="pauseWin(${wid},${paused?0:1})">${paused?'▶ Resume Auto-skip':'⏸ Pause Auto-skip'}</button>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+    return;
+  }
+  grid.style.cssText='';
+
+  const svcColHtml=SVCS.map(svc=>{
+    const svcWins=ws.filter(w=>w.service_type===svc);
+    const wt=tk.filter(t=>t.service_type===svc&&t.status==='Waiting').length;
+    const winCards=svcWins.length?
+      svcWins.map(w=>{
+        const sv=tk.find(t=>t.window_id===w.window_id&&t.status==='Serving');
+        const paused=w.skip_paused==1;
+        return '<div style="border:2px solid #111;border-top:none;background:#fff;padding:20px 22px;">'+
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
+            '<div style="font-size:20px;font-weight:700;color:#000">'+w.window_name+'</div>'+
+            '<div style="display:flex;gap:5px;align-items:center">'+
+              (paused?'<span style="background:#FEF3C7;color:#92400E;font-size:14px;padding:3px 9px;border-radius:10px;font-weight:600">⏸ Paused</span>':'')+
+              '<span class="pill '+(w.is_open?'pop':'pcl')+'">'+(w.is_open?'Open':'Closed')+'</span>'+
+            '</div>'+
+          '</div>'+
+          '<div style="font-size:17px;font-weight:600;color:#000;margin-bottom:12px">👤 '+(w.staff_name||'<span style="color:#555">Unassigned</span>')+'</div>'+
+          (sv?
+            '<div style="font-size:48px;font-weight:800;font-family:monospace;color:#8B0000;line-height:1;margin-bottom:6px">'+sv.ticket_number+'</div>'+pwdBadge(sv,true)+
+            '<div style="font-size:16px;font-weight:700;color:#000;margin-bottom:14px">🔔 Now serving</div>':
+            '<div style="font-size:21px;color:#555;font-weight:600;margin:12px 0 16px">— Ready —</div>')+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+            '<button class="btn '+(w.is_open?'br':'bg')+'" style="font-size:16px;padding:8px 18px" onclick="togWin('+w.window_id+','+(w.is_open?0:1)+')">'+(w.is_open?'Close':'Open')+'</button>'+
+            (w.is_open?'<button class="btn" style="font-size:16px;padding:8px 16px;background:'+(paused?'#D1FAE5;color:#065F46':'#FEF3C7;color:#92400E')+'" onclick="pauseWin('+w.window_id+','+(paused?0:1)+')">'+(paused?'▶ Resume':'⏸ Pause')+'</button>':'')+
+            (SESSION?.user?.role==='Admin'?'<button class="btn" onclick="delWin('+w.window_id+')" style="font-size:16px;padding:8px 16px">Delete</button>':'')+
+          '</div>'+
+        '</div>';
+      }).join('')+
+      '<div style="border:2px solid #111;border-top:none;border-radius:0 0 12px 12px;height:8px;background:#fff"></div>'
+    :'<div style="border:2px solid #111;border-top:none;border-radius:0 0 12px 12px;padding:24px;text-align:center;color:#555;font-size:17px;background:#fff">No windows for '+svc+'</div>';
+
+    return '<div style="flex:1;min-width:300px">'+
+      '<div style="display:flex;align-items:center;gap:12px;padding:16px 22px;background:#fff;border-radius:12px 12px 0 0;border:2px solid #111;border-bottom:1px solid #ddd">'+
+        '<span style="font-size:27px">'+ICN[svc]+'</span>'+
+        '<div>'+
+          '<div style="font-size:20px;font-weight:700;color:#111">'+svc+'</div>'+
+          '<div style="font-size:16px;color:#333;font-weight:600">'+wt+' waiting</div>'+
+        '</div>'+
+      '</div>'+
+      winCards+
+    '</div>';
+  }).join('');
+
+  grid.innerHTML='<div style="display:flex;gap:20px;align-items:flex-start">'+svcColHtml+'</div>';
+}
+
+async function addWin(){
+  const n=document.getElementById('wn-nm').value.trim();const s=document.getElementById('wn-svc').value;const st=document.getElementById('wn-stf').value;
+  if(!n||!s){toast('Window name and service type required.',false);return;}
+  const r=await api('/windows.php',{method:'POST',body:JSON.stringify({window_name:n,service_type:s,assigned_staff_id:st||null,admin_id:staffId()})});
+  toast(r.success?'Window added.':(r.error||'Error'),r.success);
+  if(r.success){document.getElementById('wn-nm').value='';document.getElementById('wn-svc').value='';document.getElementById('wn-stf').value='';loadWins();}
+}
+async function togWin(id,open){
+  const r=await api('/windows.php',{method:'PUT',body:JSON.stringify({window_id:id,is_open:open,admin_id:staffId()})});
+  toast(r.success?(open?'Window opened.':'Window closed.'):(r.error||'Error'),r.success);loadWins();loadDash();
+}
+async function pauseWin(id,pause){
+  const r=await api('/windows.php',{method:'PUT',body:JSON.stringify({window_id:id,skip_paused:pause,admin_id:staffId()})});
+  toast(r.success?(pause?'⏸ Auto-skip paused for this window.':'▶ Auto-skip resumed.'):(r.error||'Error'),r.success);loadWins();
+}
+async function delWin(id){
+  if(!confirm('Delete this window?'))return;
+  const r=await api('/windows.php',{method:'DELETE',body:JSON.stringify({window_id:id,admin_id:staffId()})});
+  toast(r.success?'Window deleted.':(r.error||'Error'),r.success);loadWins();
+}
+
+function pwdBadge(t,big){
+  if(!t||parseInt(t.is_priority)!==1)return '';
+  if(big)return '<div style="display:inline-block;margin-top:6px;background:#DBEAFE;color:#1E40AF;font-size:15px;font-weight:700;padding:3px 12px;border-radius:14px">♿ PWD Priority</div>';
+  return '<span style="display:inline-block;background:#DBEAFE;color:#1E40AF;font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:6px">♿ PWD</span>';
+}
+let PWD_TAB='pending';
+function pwdTab(t){PWD_TAB=t;loadPwd();}
+async function loadPwd(){
+  const tabs=[['pending','Pending'],['verified','Verified'],['rejected','Rejected'],['all','All']];
+  document.getElementById('pwd-tabs').innerHTML=tabs.map(([k,l])=>'<button class="btn'+(PWD_TAB===k?' bp':'')+'" onclick="pwdTab(\''+k+'\')">'+l+'</button>').join('');
+  const r=await api('/pwd.php?action=list&status='+PWD_TAB);
+  if(r.success===false){toast(r.error||'Not allowed.',false);return;}
+  const rows=r.applications||[];
+  document.getElementById('pwd-cnt').textContent=rows.length+' submission'+(rows.length===1?'':'s');
+  const pill=s=>'<span class="pill '+(s==='verified'?'pop':(s==='pending'?'pwt':'pcl'))+'">'+s.charAt(0).toUpperCase()+s.slice(1)+'</span>';
+  document.getElementById('pwd-list').innerHTML=rows.length?
+    '<table><thead><tr><th>Student</th><th>Student ID</th><th>PWD ID number</th><th>Status</th><th>Action</th></tr></thead><tbody>'+
+    rows.map(a=>'<tr><td><strong>'+a.full_name+'</strong><div style="font-size:13px;color:#888">'+a.email+'</div></td>'+
+      '<td style="font-family:monospace;font-size:14px">'+a.student_id+'</td>'+
+      '<td style="font-family:monospace;font-weight:700">'+a.pwd_id_number+'</td>'+
+      '<td>'+pill(a.pwd_status)+(a.pwd_reject_reason?'<div style="font-size:12px;color:#991B1B;margin-top:3px">'+a.pwd_reject_reason+'</div>':'')+'</td>'+
+      '<td style="white-space:nowrap">'+(parseInt(a.has_photo)?'<button class="btn" style="font-size:14px;padding:3px 8px" onclick="pwdView('+a.user_id+')">View ID</button> ':'')+
+        (a.pwd_status==='pending'?'<button class="btn bg" style="font-size:14px;padding:3px 8px" onclick="pwdReview('+a.user_id+',\'approve\')">Approve</button> <button class="btn br" style="font-size:14px;padding:3px 8px" onclick="pwdReview('+a.user_id+',\'reject\')">Reject</button>':'')+
+        (a.pwd_status==='verified'?'<button class="btn br" style="font-size:14px;padding:3px 8px" onclick="pwdReview('+a.user_id+',\'revoke\')">Revoke</button>':'')+
+      '</td></tr>').join('')+'</tbody></table>':'<div class="empty">No submissions here.</div>';
+}
+async function pwdView(uid){
+  try{
+    const res=await fetch(API+'/pwd.php?action=photo&user_id='+uid,{headers:{'X-Auth-Token':SESSION.token,'ngrok-skip-browser-warning':'true','bypass-tunnel-reminder':'true'}});
+    if(!res.ok){toast('No photo available.',false);return;}
+    const blob=await res.blob();
+    document.getElementById('pwd-photo-img').src=URL.createObjectURL(blob);
+    document.getElementById('pwd-photo-modal').style.display='flex';
+  }catch(e){toast('Could not load the photo.',false);}
+}
+async function pwdReview(uid,decision){
+  let reason='';
+  if(decision==='approve'){if(!confirm('Verify this student as a PWD? Make sure the ID number and photo match.'))return;}
+  else{reason=(prompt(decision==='reject'?'Reason for rejecting (shown to the student):':'Reason for revoking Priority Lane access:')||'').trim();if(!reason)return;}
+  const r=await api('/pwd.php?action=review',{method:'POST',body:JSON.stringify({user_id:uid,decision,reason})});
+  toast(r.success?(r.message||'Done.'):(r.error||'Error'),r.success);loadPwd();
+}
+async function loadUsers(){
+  // Only Admin and Staff — students manage themselves via the mobile app
+  const [ra,rs]=await Promise.all([api('/users.php?role=Admin'),api('/users.php?role=Staff')]);
+  if(ra.success===false){toast(ra.error||'Not allowed.',false);return;}
+  const users=[...(ra.users||[]),...(rs.users||[])].sort((a,b)=>a.full_name.localeCompare(b.full_name));
+  document.getElementById('u-cnt').textContent=users.length+' accounts';
+  const me=SESSION.user.user_id;
+  document.getElementById('u-list').innerHTML=users.length?
+    '<table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Details</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>'+
+    users.map(u=>{
+      const det=u.role==='Staff'?[u.department,u.position,u.employee_id].filter(Boolean).join(' · '):'—';
+      const mcp=parseInt(u.must_change_password)?' <span class="pill pcl" style="font-size:12px">Temp password</span>':'';
+      const self=parseInt(u.user_id)===parseInt(me);
+      return '<tr><td><strong>'+u.full_name+'</strong></td><td style="font-family:monospace;font-size:14px">'+u.username+'</td><td style="font-size:14px;color:#555">'+u.email+'</td>'+
+      '<td><span class="pill '+(u.role==='Admin'?'padm':'pstf')+'">'+u.role+'</span></td><td style="font-size:14px;color:#555">'+det+'</td>'+
+      '<td><span class="pill '+(parseInt(u.is_active)?'pop':'pcl')+'">'+(parseInt(u.is_active)?'Active':'Inactive')+'</span>'+mcp+'</td>'+
+      '<td style="font-size:14px;color:#888">'+(u.created_at||'').slice(0,10)+(u.created_by_name?'<br><span style="font-size:12px">by '+u.created_by_name+'</span>':'')+'</td>'+
+      '<td style="white-space:nowrap">'+(self?'<span style="font-size:13px;color:#888">You</span>':
+        '<button class="btn '+(parseInt(u.is_active)?'br':'bg')+'" style="font-size:14px;padding:3px 8px" onclick="toggleUser('+u.user_id+','+(parseInt(u.is_active)?0:1)+')">'+(parseInt(u.is_active)?'Deactivate':'Activate')+'</button> '+
+        '<button class="btn" style="font-size:14px;padding:3px 8px" onclick="resetUserPw('+u.user_id+')">Reset password</button> '+
+        '<button class="btn" style="font-size:14px;padding:3px 8px" onclick="changeUserRole('+u.user_id+',\''+(u.role==='Admin'?'Staff':'Admin')+'\')">Make '+(u.role==='Admin'?'Staff':'Admin')+'</button> '+
+        '<button class="btn br" style="font-size:14px;padding:3px 8px" onclick="deleteUser('+u.user_id+')">Delete</button>')+'</td></tr>';
+    }).join('')+'</tbody></table>':'<div class="empty">No Admin or Staff accounts.</div>';
+}
+function onNewRole(){document.getElementById('n-staff').style.display=document.getElementById('n-rl').value==='Staff'?'block':'none';}
+function genTempPw(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';let o='';
+  const a=new Uint32Array(10);crypto.getRandomValues(a);for(const n of a)o+=c[n%c.length];
+  document.getElementById('n-pw').value=o+'7';
+}
+async function createUser(){
+  const role=document.getElementById('n-rl').value;
+  const b={role,full_name:document.getElementById('n-nm').value.trim(),email:document.getElementById('n-em').value.trim(),username:document.getElementById('n-un').value.trim(),password:document.getElementById('n-pw').value};
+  if(!b.role||!b.full_name||!b.email||!b.username||!b.password){toast('Fill all fields.',false);return;}
+  if(b.password.length<8){toast('Temporary password must be at least 8 characters.',false);return;}
+  if(role==='Staff'){
+    b.department=document.getElementById('n-dp').value;b.position=document.getElementById('n-ps').value.trim();b.employee_id=document.getElementById('n-ei').value.trim();
+    if(!b.department||!b.position||!b.employee_id){toast('Department, position and employee ID are required for Staff.',false);return;}
+  }
+  const r=await api('/users.php',{method:'POST',body:JSON.stringify(b)});
+  if(r.success){
+    const box=document.getElementById('n-result');
+    box.style.display='block';
+    box.innerHTML='✅ <strong>Account created.</strong> Give these credentials to the user privately — they must change the password at first login.<br><br>Username: <strong style="font-family:monospace">'+b.username+'</strong><br>Temporary password: <strong style="font-family:monospace">'+b.password+'</strong><br><br><button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText(\'Username: '+b.username+'\\nTemporary password: '+b.password+'\');toast(\'Copied.\')">Copy credentials</button>';
+    ['n-nm','n-em','n-un','n-pw','n-ps','n-ei'].forEach(i=>document.getElementById(i).value='');document.getElementById('n-rl').value='';document.getElementById('n-dp').value='';onNewRole();
+    toast('Account created.');
+  }else toast(r.error||'Error',false);
+}
+async function toggleUser(id,active){
+  const r=await api('/users.php',{method:'PUT',body:JSON.stringify({user_id:id,is_active:active})});
+  toast(r.success?(active?'Account activated.':'Account deactivated.'):(r.error||'Error'),r.success);
+  loadUsers();
+}
+async function resetUserPw(id){
+  const pw=prompt('Enter a new temporary password (min 8 characters). The user must change it at next login.');
+  if(!pw)return;
+  const r=await api('/users.php',{method:'PUT',body:JSON.stringify({user_id:id,reset_password:pw})});
+  toast(r.success?'Password reset. Share it privately.':(r.error||'Error'),r.success);loadUsers();
+}
+async function changeUserRole(id,role){
+  if(!confirm('Change this account to '+role+'?'))return;
+  const b={user_id:id,role};
+  if(role==='Staff'){
+    b.department=prompt('Department (Registrar, Cashier or OSA):')||'';b.position=prompt('Position:')||'';b.employee_id=prompt('Employee ID:')||'';
+    if(!b.department||!b.position||!b.employee_id){toast('Staff details are required.',false);return;}
+  }
+  const r=await api('/users.php',{method:'PUT',body:JSON.stringify(b)});
+  toast(r.success?'Role updated.':(r.error||'Error'),r.success);loadUsers();
+}
+async function deleteUser(id){
+  if(!confirm('Delete this account permanently? Accounts with activity history cannot be deleted — deactivate them instead.'))return;
+  const r=await api('/users.php',{method:'DELETE',body:JSON.stringify({user_id:id})});
+  toast(r.success?'Account deleted.':(r.error||'Error'),r.success);loadUsers();
+}
+async function submitPwChange(){
+  const cur=document.getElementById('pm-cur').value,nw=document.getElementById('pm-new').value,cf=document.getElementById('pm-cf').value;
+  const err=document.getElementById('pm-err');err.style.display='none';
+  const fail=m=>{err.textContent=m;err.style.display='block';};
+  if(!cur||!nw||!cf)return fail('Fill all fields.');
+  if(nw.length<8)return fail('New password must be at least 8 characters.');
+  if(nw!==cf)return fail('Passwords do not match.');
+  const r=await api('/auth.php',{method:'POST',body:JSON.stringify({action:'change_password',current_password:cur,new_password:nw})});
+  if(r.success){
+    SESSION.user.must_change_password=0;sessionStorage.setItem('qts_admin_session',JSON.stringify(SESSION));
+    document.getElementById('pw-modal').style.display='none';['pm-cur','pm-new','pm-cf'].forEach(i=>document.getElementById(i).value='');
+    toast('Password changed.');
+  }else fail(r.error||'Could not change password.');
+}
+
+async function loadLogs(){
+  const f=document.getElementById('log-f').value;
+  const d=document.getElementById('log-dt').value||new Date().toISOString().slice(0,10);
+  const res=await api('/logs.php?action=logs&date='+d+(f?'&type='+f:''));
+  const logs=res.logs||[];
+  document.getElementById('log-body').innerHTML=logs.length?
+    '<table><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Detail</th></tr></thead><tbody>'+
+    logs.map(l=>'<tr><td style="font-family:monospace;font-size:14px">'+(l.logged_at||'').slice(0,16)+'</td><td><strong>'+(l.username||'—')+'</strong></td><td><span class="pill pd" style="font-size:13px">'+l.action_type+'</span></td><td style="color:#555;font-size:14px">'+l.action_detail+'</td></tr>').join('')+
+    '</tbody></table>':'<div class="empty">No logs found for '+d+'.</div>';
+}
+
+async function loadRep(date,svc){
+  const d=date||document.getElementById('rep-dt').value||new Date().toISOString().slice(0,10);
+  const s=svc||document.getElementById('rep-svc').value||'';
+  let url='/logs.php?action=analytics&date='+d;
+  if(s)url+='&service_type='+encodeURIComponent(s);
+  const res=await api(url);
+  if(!res.success){toast('Failed to load report.',false);return;}
+  document.getElementById('r-tot').textContent=res.total||0;
+  document.getElementById('r-srv').textContent=res.served||0;
+  document.getElementById('r-sk').textContent=res.skipped||0;
+  document.getElementById('r-pct').textContent=res.completion_pct!=null?res.completion_pct+'%':'—';
+  if(document.getElementById('r-date-lbl'))document.getElementById('r-date-lbl').textContent='Date: '+d+(s?' · '+s:'');
+  document.getElementById('rep-results').style.display='grid';
+  if(document.getElementById('rep-comparison'))document.getElementById('rep-comparison').style.display='block';
+  document.getElementById('r-brkd').innerHTML=(res.by_type||[]).map(s=>{
+    const pct=s.total?Math.round(s.served/s.total*100):0;
+    const clr={Registrar:'#1A56DB',Cashier:'#059669',OSA:'#7C3AED'}[s.service_type]||'#1A56DB';
+    const bar='<div style="height:6px;background:#E5E5E0;border-radius:3px;margin-top:4px"><div style="height:6px;background:'+clr+';border-radius:3px;width:'+pct+'%"></div></div>';
+    return '<div style="padding:10px 0;border-bottom:1px solid #E5E5E0"><div style="display:flex;justify-content:space-between"><span style="font-weight:600">'+sLbl(s.service_type)+'</span><span style="font-size:16px;color:#555">'+s.served+'/'+s.total+' served ('+pct+'%)</span></div>'+bar+'</div>';
+  }).join('')||'<div class="empty">No data for this date.</div>';
+}
+async function genRep(){
+  const t=document.getElementById('rep-tp').value;
+  const d=document.getElementById('rep-dt').value;
+  const s=document.getElementById('rep-svc').value;
+  if(!t){toast('Select a report type.',false);return;}
+  if(!d){toast('Select a date.',false);return;}
+  await loadRep(d,s);
+  await loadTransactionTable(d,s);
+  toast('Report generated for '+d+(s?' ('+s+')':'')+'.');
+}
+const REP_COLS=[
+  {k:'dt',l:'Date'},{k:'sv',l:'Type of Service'},{k:'pu',l:'Purpose'},{k:'nm',l:'Student Name'},
+  {k:'sid',l:'Student ID'},{k:'st',l:'Status'},
+  {k:'no',l:'#'},{k:'tk',l:'Queue Number'},{k:'win',l:'Window'},
+  {k:'iss',l:'Time Issued'},{k:'ert',l:'ERT (min)'},{k:'cal',l:'Time Called'},{k:'wt',l:'Actual Wait (min)'},
+  {k:'end',l:'Time Ended'},{k:'dur',l:'Service Time (min)'},{k:'sk',l:'Skips'}
+];
+const REP_PRESETS={
+  min:['tk','iss','ert','wt','end'],
+  std:['no','nm','sid','pu','dt','sv','tk','st'],
+  full:REP_COLS.map(c=>c.k)
+};
+let REP_SEL=REP_PRESETS.std.slice();
+let REP_TKS=[];
+let REP_ALL=[];
+function repTotals(){
+  const c=sv=>REP_ALL.filter(t=>t.service_type===sv).length;
+  return {all:REP_ALL.length,reg:c('Registrar'),cas:c('Cashier'),osa:c('OSA')};
+}
+function repTotalsHtml(){
+  const t=repTotals();
+  const box=(l,v,clr)=>'<div class="mc" style="flex:1;min-width:120px"><div class="mc-lbl">'+l+'</div><div class="mc-val"'+(clr?' style="color:'+clr+'"':'')+'>'+v+'</div></div>';
+  return '<div style="font-size:14px;font-weight:700;color:#555;margin-bottom:6px">Total Transactions</div><div style="display:flex;gap:10px;flex-wrap:wrap">'+box('All Services',t.all)+box('🎓 Registrar',t.reg,'#1A56DB')+box('💳 Cashier',t.cas,'#059669')+box('🤝 OSA',t.osa,'#7C3AED')+'</div>';
+}
+function _repT(ts){return ts?String(ts).slice(11,19):'—';}
+function _repMin(a,b){
+  if(!a||!b)return null;
+  const x=new Date(String(a).replace(' ','T')),y=new Date(String(b).replace(' ','T'));
+  if(isNaN(x)||isNaN(y))return null;
+  return Math.max(0,(y-x)/60000);
+}
+function _repCell(k,t,i,print){
+  switch(k){
+    case 'no':return i+1;
+    case 'nm':return t.full_name||t.walkin_name||'—';
+    case 'sid':return t.student_id||t.walkin_id||'—';
+    case 'pu':return t.purpose||'—';
+    case 'dt':return (t.issued_at||'').slice(0,10)||'—';
+    case 'sv':return print?t.service_type:sLbl(t.service_type);
+    case 'tk':return t.ticket_number;
+    case 'win':return t.window_name||'—';
+    case 'iss':return _repT(t.issued_at);
+    case 'ert':return t.predicted_ert!=null&&t.predicted_ert!==''?parseFloat(t.predicted_ert).toFixed(1):'—';
+    case 'cal':return _repT(t.called_at);
+    case 'wt':{const m=_repMin(t.issued_at,t.called_at);return m==null?'—':m.toFixed(1);}
+    case 'end':return _repT(t.served_at);
+    case 'dur':{const m=_repMin(t.called_at,t.served_at);return m==null?'—':m.toFixed(1);}
+    case 'sk':return parseInt(t.skip_count)>0?t.skip_count+'×':'—';
+    case 'st':return print?t.status:sPill(t.status);
+  }
+  return '';
+}
+function repCols(){return REP_COLS.filter(c=>REP_SEL.includes(c.k));}
+function repOrientation(){
+  const v=document.getElementById('rep-orient')?.value||'auto';
+  if(v!=='auto')return v;
+  return repCols().length>7?'landscape':'portrait';
+}
+function repBuildTable(print){
+  const cols=repCols();
+  const th='padding:9px 10px;border-bottom:2px solid #111;text-align:left;background:#f9f9f8';
+  const td='padding:9px 10px;border-bottom:1px solid #E5E5E0;font-size:15px';
+  const sty={no:'color:#888',sid:'font-family:monospace;font-size:14px;color:#555',tk:'font-family:monospace;font-weight:700;color:#8B0000'};
+  if(print){
+    return '<table><thead><tr>'+cols.map(c=>'<th>'+c.l+'</th>').join('')+'</tr></thead><tbody>'+
+      REP_TKS.map((t,i)=>'<tr>'+cols.map(c=>'<td>'+_repCell(c.k,t,i,true)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+  }
+  return '<table style="width:100%;border-collapse:collapse;font-size:16px"><thead><tr>'+
+    cols.map(c=>'<th style="'+th+'">'+c.l+'</th>').join('')+'</tr></thead><tbody>'+
+    REP_TKS.map((t,i)=>'<tr>'+cols.map(c=>{
+      const v=_repCell(c.k,t,i,false);
+      return '<td style="'+td+(sty[c.k]?';'+sty[c.k]:'')+'">'+(c.k==='nm'?'<strong>'+v+'</strong>':v)+'</td>';
+    }).join('')+'</tr>').join('')+'</tbody></table>';
+}
+function repRenderFilter(){
+  const el=document.getElementById('rep-cols');if(!el)return;
+  el.innerHTML=REP_COLS.map(c=>'<label style="display:flex;align-items:center;gap:5px;font-size:15px;padding:4px 10px;border:1px solid #E5E5E0;border-radius:16px;cursor:pointer;background:'+(REP_SEL.includes(c.k)?'#EEF2FF':'#fff')+'"><input type="checkbox" '+(REP_SEL.includes(c.k)?'checked ':'')+'onchange="repToggle(\''+c.k+'\',this.checked)"> '+c.l+'</label>').join('');
+}
+function repToggle(k,on){
+  if(on&&!REP_SEL.includes(k))REP_SEL.push(k);
+  if(!on)REP_SEL=REP_SEL.filter(x=>x!==k);
+  if(!REP_SEL.length){REP_SEL=[k];}
+  repRenderFilter();renderRepTable();
+}
+function repPreset(n){REP_SEL=REP_PRESETS[n].slice();repRenderFilter();renderRepTable();}
+function renderRepTable(){
+  const el=document.getElementById('rep-tx-body');if(!el)return;
+  const lbl=document.getElementById('rep-orient-lbl');
+  if(lbl)lbl.textContent='→ '+(repOrientation()==='landscape'?'Landscape':'Portrait')+' ('+repCols().length+' columns)';
+  const tt=document.getElementById('rep-totals');if(tt)tt.innerHTML=REP_ALL.length?repTotalsHtml():'';
+  if(!REP_TKS.length){el.innerHTML='<div class="empty">No tickets found.</div>';return;}
+  el.innerHTML=repBuildTable(false);
+}
+async function loadTransactionTable(date,svc){
+  const d=date||new Date().toISOString().slice(0,10);const s=svc||'';
+  const res=await api('/tickets.php?date='+d);const allT=res.tickets||[];
+  const tks=s?allT.filter(t=>t.service_type===s):allT;
+  REP_ALL=allT;
+  const card=document.getElementById('rep-tx-table');
+  const lbl=document.getElementById('rep-tx-lbl');
+  if(card)card.style.display='block';
+  if(lbl)lbl.textContent='Date: '+d+(s?' · '+s:'');
+  REP_TKS=tks;
+  repRenderFilter();renderRepTable();
+}
+function openComparisonReport(){
+  const d=document.getElementById('rep-dt').value||new Date().toISOString().slice(0,10);
+  const s=document.getElementById('rep-svc').value||'';
+  window.open('comparison_report.php?date='+d+(s?'&service='+encodeURIComponent(s):''),'_blank');
+}
+function printRep(){
+  const d=document.getElementById('rep-dt').value||new Date().toISOString().slice(0,10);
+  const s=document.getElementById('rep-svc').value||'';
+  if(!REP_TKS.length){toast('Generate a report first.',false);return;}
+  const orient=repOrientation();
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>Transaction Report — '+d+'</title>'+
+    '<style>@page{size:A4 '+orient+';margin:12mm}body{font-family:Times New Roman,serif;padding:12px}table{width:100%;border-collapse:collapse;font-size:15px}'+
+    'th{padding:7px 8px;border:1px solid #333;background:#f0f0f0;font-weight:700;text-align:left}td{padding:6px 8px;border:1px solid #ccc}'+
+    'h2{margin-bottom:4px;text-align:center}p{color:#555;margin-bottom:16px;font-size:16px;text-align:center}'+
+    '.sig{margin-top:60px;display:flex;justify-content:space-between}'+
+    '.sig-box{text-align:center;min-width:180px}'+
+    '.sig-line{border-top:1px solid #000;padding-top:6px;font-size:15px;font-weight:700}'+
+    '</style></head><body>'+
+    '<h2>Global Reciprocal Colleges</h2>'+
+    '<p style="margin-bottom:4px">454 GRC Bldg. Rizal Avenue Ext. Cor. 9th Avenue Grace Park, Caloocan City</p>'+
+    '<p>Transaction Report — Date: '+d+(s?' | Service: '+s:'')+'</p>'+
+    '<p style="color:#111;font-weight:700">Total Transactions — All Services: '+repTotals().all+' &nbsp;|&nbsp; Registrar: '+repTotals().reg+' &nbsp;|&nbsp; Cashier: '+repTotals().cas+' &nbsp;|&nbsp; OSA: '+repTotals().osa+'</p>'+
+    repBuildTable(true)+
+    '<div class="sig">'+
+    '<div class="sig-box"><div class="sig-line">Prepared by</div><div style="font-size:14px;color:#555">Signature over Printed Name</div></div>'+
+    '<div class="sig-box"><div class="sig-line">Verified by</div><div style="font-size:14px;color:#555">Signature over Printed Name</div></div>'+
+    '<div class="sig-box"><div class="sig-line">Noted by</div><div style="font-size:14px;color:#555">Signature over Printed Name</div></div>'+
+    '</div></body></html>');
+  w.document.close();w.print();
+}
+
+// Set default date to today for dashboard
+document.getElementById('dash-dt').value=new Date().toISOString().slice(0,10);
+try{loadDash();}catch(e){}
+// capacity removed
+// Auto-refresh only when viewing TODAY — past dates don't need live updates
+setInterval(()=>{
+  const d=document.getElementById('dash-dt')?.value;
+  const today=new Date().toISOString().slice(0,10);
+  if(!d||d===today){try{loadDash();}catch(e){}}
+},10000);
+// capacity panel removed from dashboard
+// ── Nav routing for new pages ──────────────────────────────
+const _navHooks={
+  analytics:()=>{
+    if(!document.getElementById('an-dt').value)
+      document.getElementById('an-dt').value=new Date().toISOString().slice(0,10);
+    loadAnalytics();
+  },
+};
+const _origNav=nav;
+nav=function(n,el){_origNav(n,el);if(_navHooks[n])_navHooks[n]();};
+
+// ── ANALYTICS ──────────────────────────────────────────────
+let _chartVol=null,_chartPeak=null,_chartWait=null;
+let _tblData={vol:null,peak:null,wait:null};
+let _tblVisible={vol:false,peak:false,wait:false};
+
+function toggleChartTable(id){
+  _tblVisible[id]=!_tblVisible[id];
+  const showing=_tblVisible[id];
+  const btn=document.getElementById('btn-'+id);
+  const tbl=document.getElementById('tbl-'+id);
+  const canvas=document.getElementById(id==='vol'?'chart-service-vol':id==='peak'?'chart-peak':'chart-avgwait');
+  if(btn){btn.innerHTML=showing?'▶ Show as chart':'▶ Show as table';}
+  if(canvas)canvas.style.display=showing?'none':'';
+  if(tbl){
+    tbl.style.display=showing?'block':'none';
+    if(showing&&_tblData[id])tbl.innerHTML=_tblData[id];
+  }
+}
+
+const _tblStyle='width:100%;border-collapse:collapse;font-size:15px';
+const _th='padding:7px 10px;border-bottom:2px solid #DDD;text-align:left;background:#F8F8F6;font-weight:700;color:#333;font-size:14px;text-transform:uppercase;letter-spacing:.4px';
+const _td='padding:7px 10px;border-bottom:1px solid #EDEDE8;color:#444';
+const _tdN='padding:7px 10px;border-bottom:1px solid #EDEDE8;color:#111;font-weight:600;font-variant-numeric:tabular-nums;text-align:right';
+
+function destroyCharts(){[_chartVol,_chartPeak,_chartWait].forEach(c=>{if(c)c.destroy();});_chartVol=_chartPeak=_chartWait=null;
+  // reset table visibility on reload
+  ['vol','peak','wait'].forEach(id=>{_tblVisible[id]=false;const b=document.getElementById('btn-'+id);const t=document.getElementById('tbl-'+id);const c=document.getElementById(id==='vol'?'chart-service-vol':id==='peak'?'chart-peak':'chart-avgwait');if(b)b.innerHTML='▶ Show as table';if(t)t.style.display='none';if(c)c.style.display='';});
+}
+
+function anRangeLabels(from,to){
+  const f=new Date(from+'T00:00:00'),t=new Date(to+'T00:00:00');
+  const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const mo=d=>d.toLocaleDateString('en-US',{month:'long'});
+  let txt;
+  if(from===to)txt='📅 Date: <strong>'+fmt(f)+'</strong> &nbsp;·&nbsp; Month: <strong>'+mo(f)+'</strong> &nbsp;·&nbsp; Year: <strong>'+f.getFullYear()+'</strong>';
+  else{
+    const sameM=f.getMonth()===t.getMonth()&&f.getFullYear()===t.getFullYear();
+    const sameY=f.getFullYear()===t.getFullYear();
+    txt='📅 Date range: <strong>'+fmt(f)+' – '+fmt(t)+'</strong> &nbsp;·&nbsp; Month: <strong>'+(sameM?mo(f):mo(f)+' – '+mo(t))+'</strong> &nbsp;·&nbsp; Year: <strong>'+(sameY?f.getFullYear():f.getFullYear()+' – '+t.getFullYear())+'</strong>';
+  }
+  ['vol','peak','wait'].forEach(id=>{const el=document.getElementById('an-range-'+id);if(el)el.innerHTML=txt;});
+}
+function anChips(id,items){
+  const el=document.getElementById('an-pct-'+id);if(!el)return;
+  el.innerHTML=items.length?items.map(i=>'<span style="font-size:14px;font-weight:700;padding:3px 9px;border-radius:12px;background:'+i.c+'22;color:'+i.c+';white-space:nowrap">'+i.l+' '+i.p+'%</span>').join(''):'<span style="font-size:14px;color:#aaa">No data</span>';
+}
+async function loadAnalytics(){
+  let from=document.getElementById('an-dt').value||new Date().toISOString().slice(0,10);
+  let to=document.getElementById('an-dt2').value||from;
+  if(to<from){const x=from;from=to;to=x;}
+  const date=from;
+  let tks=[];
+  {
+    const res=await api('/tickets.php?date='+from+(to!==from?'&date_to='+to:''));
+    tks=res.tickets||[];
+    if(to!==from&&res.range!==true){
+      // Old tickets.php on the server (no range support): fall back to one request per day (max 31 days)
+      toast('Update tickets.php on the server for long date ranges.',false);
+      const dayList=[];
+      const a0=new Date(from+'T00:00:00'),b0=new Date(to+'T00:00:00');
+      for(let d=new Date(a0);d<=b0&&dayList.length<31;d.setDate(d.getDate()+1)){dayList.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));}
+      tks=[];
+      for(let i=0;i<dayList.length;i+=4){
+        const part=await Promise.all(dayList.slice(i,i+4).map(d=>api('/tickets.php?date='+d)));
+        part.forEach(r=>{(r.tickets||[]).forEach(t=>tks.push(t));});
+      }
+      to=dayList[dayList.length-1]||from;
+    }
+  }
+  anRangeLabels(from,to);
+  destroyCharts();
+
+  const SVCS=['Registrar','Cashier','OSA'];
+  const SVC_CLR=['#1A56DB','#059669','#7C3AED'];
+
+  // ── Compute stats ──────────────────────────────────────
+  const served=tks.filter(t=>t.status==='Served');
+  const skipped=tks.filter(t=>t.status==='Skipped');
+
+  // Avg wait = issued → called
+  const waits=served.filter(t=>t.called_at&&t.issued_at)
+    .map(t=>(new Date(t.called_at)-new Date(t.issued_at))/60000);
+  const avgWait=waits.length?Math.round(waits.reduce((a,b)=>a+b,0)/waits.length*10)/10:null;
+
+  // Avg service = called → served
+  const svcs=served.filter(t=>t.called_at&&t.served_at)
+    .map(t=>(new Date(t.served_at)-new Date(t.called_at))/60000);
+  const avgSvc=svcs.length?Math.round(svcs.reduce((a,b)=>a+b,0)/svcs.length*10)/10:null;
+
+  const pct=tks.length?Math.round(served.length/tks.length*100):0;
+
+  // Update stat cards
+  document.getElementById('an-total').textContent=tks.length;
+  document.getElementById('an-total-sub').textContent=skipped.length+' skipped';
+  document.getElementById('an-avgwait').textContent=avgWait!==null?avgWait+' min':'—';
+  document.getElementById('an-wait-sub').textContent=waits.length+' tickets measured';
+  document.getElementById('an-avgsvc').textContent=avgSvc!==null?avgSvc+' min':'—';
+  document.getElementById('an-svc-sub').textContent=svcs.length+' tickets measured';
+  document.getElementById('an-served').textContent=served.length;
+  document.getElementById('an-served-sub').textContent=pct+'% of daily capacity';
+
+  // ── Chart 1: Transaction Volume by Service (vertical bar) ──
+  const volData=SVCS.map(s=>tks.filter(t=>t.service_type===s).length);
+  _chartVol=new Chart(document.getElementById('chart-service-vol'),{
+    type:'bar',
+    data:{
+      labels:SVCS,
+      datasets:[{label:'Transactions',data:volData,backgroundColor:SVC_CLR.map(c=>c+'bb'),borderColor:SVC_CLR,borderWidth:2,borderRadius:6}]
+    },
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>' '+i.raw+' transaction'+(i.raw!==1?'s':'')}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},title:{display:true,text:'Number of Transactions'}}}}
+  });
+  // Chart 1 table data
+  _tblData.vol='<table style="'+_tblStyle+'"><thead><tr><th style="'+_th+'">Service</th><th style="'+_th+';text-align:right">Transactions</th><th style="'+_th+';text-align:right">Share</th></tr></thead><tbody>'+
+    SVCS.map((s,i)=>{const total2=volData.reduce((a,b)=>a+b,0);const pct=total2?Math.round(volData[i]/total2*100):0;return'<tr><td style="'+_td+'">'+s+'</td><td style="'+_tdN+'">'+volData[i]+'</td><td style="'+_tdN+'">'+pct+'%</td></tr>';}).join('')+
+    '</tbody><tfoot><tr><td style="'+_th+'">Total</td><td style="'+_th+';text-align:right">'+volData.reduce((a,b)=>a+b,0)+'</td><td style="'+_th+';text-align:right">100%</td></tr></tfoot></table>';
+
+  // Chart 1 interpretation
+  const volInterpEl=document.getElementById('an-vol-interp');
+  if(tks.length&&volInterpEl){
+    const maxSvcV=SVCS[volData.indexOf(Math.max(...volData))];
+    const minSvcV=SVCS[volData.indexOf(Math.min(...volData.filter(v=>v>0))||0)];
+    const total=volData.reduce((a,b)=>a+b,0);
+    const maxPct=total?Math.round(volData[SVCS.indexOf(maxSvcV)]/total*100):0;
+    volInterpEl.style.display='block';
+    volInterpEl.innerHTML='<strong>Interpretation:</strong> '+maxSvcV+' recorded the most transactions today with '+volData[SVCS.indexOf(maxSvcV)]+' tickets ('+maxPct+'% of total). '+(total>0?'Total tickets issued: <strong>'+total+'</strong>.':'');
+  }
+
+  anChips('vol',SVCS.map((sv,i)=>{const tt=volData.reduce((a,b)=>a+b,0);return{l:sv,p:tt?Math.round(volData[i]/tt*100):0,c:SVC_CLR[i]};}));
+  // ── Chart 2: Peak Hours (line chart with highlight) ──
+  const hourMap={};
+  tks.forEach(t=>{if(t.issued_at){const h=new Date(t.issued_at).getHours();hourMap[h]=(hourMap[h]||0)+1;}});
+  const hours=Array.from({length:10},(_,i)=>i+8);// 8AM-5PM
+  const hourCounts=hours.map(h=>hourMap[h]||0);
+  const peakH=hours[hourCounts.indexOf(Math.max(...hourCounts))];
+  const peakLabel=peakH<12?peakH+':00 AM - '+(peakH+1)+':00 AM':(peakH-12)+':00 PM - '+(peakH-11)+':00 PM';
+  document.getElementById('an-peak-lbl').textContent=hourCounts.some(v=>v>0)?'Peak: '+peakLabel:'';
+  _chartPeak=new Chart(document.getElementById('chart-peak'),{
+    type:'line',
+    data:{
+      labels:hours.map(h=>h<12?h+' AM':(h===12?'12 PM':(h-12)+' PM')),
+      datasets:[{label:'Tickets',data:hourCounts,borderColor:'#DC2626',backgroundColor:(ctx)=>{
+        const chart=ctx.chart;const{ctx:c2,chartArea}=chart;
+        if(!chartArea)return'#DC262622';
+        const g=c2.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
+        g.addColorStop(0,'#DC262655');g.addColorStop(1,'#DC262600');
+        return g;
+      },fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#DC2626',borderWidth:2}]
+    },
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{title:([i])=>i.label+' — '+i.raw+' ticket'+(i.raw!==1?'s':'')}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},title:{display:true,text:'Tickets Issued'}},x:{title:{display:true,text:'Hour of Day'}}}}
+  });
+  // Chart 2 table data
+  _tblData.peak='<table style="'+_tblStyle+'"><thead><tr><th style="'+_th+'">Hour</th><th style="'+_th+';text-align:right">Tickets Issued</th><th style="'+_th+';text-align:right">Share</th><th style="'+_th+'">Peak?</th></tr></thead><tbody>'+
+    hours.map((h,i)=>{const lbl=h<12?h+':00 AM':(h===12?'12:00 PM':(h-12)+':00 PM');const isPeak=hourCounts[i]===Math.max(...hourCounts)&&hourCounts[i]>0;return'<tr style="'+(isPeak?'background:#FEF2F2':'')+'"><td style="'+_td+'">'+lbl+'</td><td style="'+_tdN+'">'+hourCounts[i]+'</td><td style="'+_tdN+'">'+(hourCounts.reduce((a,b)=>a+b,0)?Math.round(hourCounts[i]/hourCounts.reduce((a,b)=>a+b,0)*100):0)+'%</td><td style="padding:7px 10px;border-bottom:1px solid #EDEDE8">'+(isPeak?'<span style="font-size:14px;background:#FEE2E2;color:#B91C1C;padding:2px 7px;border-radius:10px;font-weight:700">Peak</span>':'')+'</td></tr>';}).join('')+
+    '</tbody></table>';
+
+  {const tt=hourCounts.reduce((a,b)=>a+b,0);anChips('peak',tt?hours.map((h,i)=>({l:h<12?h+' AM':(h===12?'12 PM':(h-12)+' PM'),p:Math.round(hourCounts[i]/tt*100),c:hourCounts[i]===Math.max(...hourCounts)?'#DC2626':'#6B7280'})).filter((x,i)=>hourCounts[i]>0):[]);}
+  // Chart 2 interpretation
+  const peakInterpEl=document.getElementById('an-peak-interp');
+  if(peakInterpEl&&hourCounts.some(v=>v>0)){
+    const peakCount=Math.max(...hourCounts);
+    const quietH=hours[hourCounts.indexOf(Math.min(...hourCounts))];
+    const quietLabel=quietH<12?quietH+':00 AM':(quietH===12?'12:00 PM':(quietH-12)+':00 PM');
+    peakInterpEl.style.display='block';
+    peakInterpEl.innerHTML='<strong>Interpretation:</strong> The system experienced peak demand at <strong>'+peakLabel+'</strong> with <strong>'+peakCount+' ticket'+(peakCount!==1?'s':'')+' issued</strong> during that hour. Scheduling additional staff or opening extra windows during this period can reduce student waiting time.';
+  }
+
+  // ── Chart 3: Avg Waiting Time by Service (horizontal bar) ──
+  const avgWaitsPerSvc=SVCS.map(s=>{
+    const sw=tks.filter(t=>t.service_type===s&&t.status==='Served'&&t.called_at&&t.issued_at)
+      .map(t=>(new Date(t.called_at)-new Date(t.issued_at))/60000);
+    return sw.length?Math.round(sw.reduce((a,b)=>a+b,0)/sw.length*10)/10:0;
+  });
+  _chartWait=new Chart(document.getElementById('chart-avgwait'),{
+    type:'bar',
+    data:{
+      labels:SVCS,
+      datasets:[{label:'Avg Wait (min)',data:avgWaitsPerSvc,backgroundColor:SVC_CLR.map(c=>c+'bb'),borderColor:SVC_CLR,borderWidth:2,borderRadius:4}]
+    },
+    options:{
+      indexAxis:'y',responsive:true,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>' '+i.raw+' min average wait'}}},
+      scales:{x:{beginAtZero:true,title:{display:true,text:'Minutes (avg)'}},y:{title:{display:true,text:'Service'}}}
+    }
+  });
+  // Chart 3 table data
+  _tblData.wait='<table style="'+_tblStyle+'"><thead><tr><th style="'+_th+'">Service</th><th style="'+_th+';text-align:right">Avg Wait (min)</th><th style="'+_th+';text-align:right">Tickets Measured</th><th style="'+_th+';text-align:right">Share of Avg Wait</th></tr></thead><tbody>'+
+    SVCS.map((s,i)=>{const cnt=tks.filter(t=>t.service_type===s&&t.status==='Served'&&t.called_at&&t.issued_at).length;const isMax=avgWaitsPerSvc[i]===Math.max(...avgWaitsPerSvc)&&avgWaitsPerSvc[i]>0;return'<tr style="'+(isMax?'background:#FFF7ED':'')+'"><td style="'+_td+'">'+s+(isMax&&avgWaitsPerSvc[i]>0?' <span style="font-size:13px;background:#FED7AA;color:#C2410C;padding:1px 6px;border-radius:8px">Longest</span>':'')+'</td><td style="'+_tdN+';color:'+(isMax&&avgWaitsPerSvc[i]>10?'#DC2626':'inherit')+'">'+avgWaitsPerSvc[i]+'</td><td style="'+_tdN+'">'+cnt+'</td><td style="'+_tdN+'">'+(avgWaitsPerSvc.reduce((x,y)=>x+y,0)?Math.round(avgWaitsPerSvc[i]/avgWaitsPerSvc.reduce((x,y)=>x+y,0)*100):0)+'%</td></tr>';}).join('')+
+    '</tbody></table>';
+
+  {const tt=avgWaitsPerSvc.reduce((a,b)=>a+b,0);anChips('wait',tt?SVCS.map((sv,i)=>({l:sv,p:Math.round(avgWaitsPerSvc[i]/tt*100),c:SVC_CLR[i]})):[]);}
+  // Chart 3 interpretation
+  const waitInterpEl=document.getElementById('an-wait-interp');
+  if(waitInterpEl&&avgWaitsPerSvc.some(v=>v>0)){
+    const maxWaitIdx=avgWaitsPerSvc.indexOf(Math.max(...avgWaitsPerSvc));
+    const minWaitIdx=avgWaitsPerSvc.filter(v=>v>0).length>1?avgWaitsPerSvc.indexOf(Math.min(...avgWaitsPerSvc.filter(v=>v>0))):maxWaitIdx;
+    const overallAvg=avgWait!==null?avgWait:'N/A';
+    waitInterpEl.style.display='block';
+    waitInterpEl.innerHTML='<strong>Interpretation:</strong> <strong>'+SVCS[maxWaitIdx]+'</strong> has the longest average waiting time at <strong>'+avgWaitsPerSvc[maxWaitIdx]+' min</strong> per transaction. '+
+      (avgWait!==null?'Overall average across all services: <strong>'+overallAvg+' min</strong>. ':'')+
+      (avgWaitsPerSvc[maxWaitIdx]>10?'This exceeds the recommended 10-minute threshold — consider process improvements or additional counters for this service.':'Waiting times are within acceptable range.');
+  }
+
+  // ── System Insights & Recommendations ──
+  const insights=[];
+  const totalTx=tks.length;
+
+  // 1. High demand alert — service with most tickets
+  const maxSvc=SVCS[volData.indexOf(Math.max(...volData))];
+  const maxVol=Math.max(...volData);
+  if(maxVol>0){
+    const maxPctOf=totalTx?Math.round(maxVol/totalTx*100):0;
+    const secondVol=volData.slice().sort((a,b)=>b-a)[1]||0;
+    insights.push({
+      icon:'⚠️',color:'#DC2626',bg:'#FEF2F2',border:'#FECACA',
+      title:'High Demand — '+maxSvc,
+      body:maxSvc+' handled the most transactions today: <strong>'+maxVol+' tickets</strong> ('+maxPctOf+'% of total '+totalTx+' transactions).'+(secondVol>0?' This is '+(maxVol-secondVol)+' more than the next highest service.':''),
+      rec:'Open an additional '+maxSvc+' service window during peak hours ('+peakLabel+') to reduce student wait times and distribute load.'
+    });
+  }
+
+  // 2. Long waiting time alert (threshold: >8 min overall or >12 min for any service)
+  const longestSvcIdx=avgWaitsPerSvc.indexOf(Math.max(...avgWaitsPerSvc));
+  const longestWait=Math.max(...avgWaitsPerSvc);
+  if(longestWait>8){
+    const shortestSvcIdx=avgWaitsPerSvc.indexOf(Math.min(...avgWaitsPerSvc.filter(v=>v>0)));
+    insights.push({
+      icon:'⏰',color:'#D97706',bg:'#FFFBEB',border:'#FDE68A',
+      title:'Above-Average Waiting Time — '+SVCS[longestSvcIdx],
+      body:'<strong>'+SVCS[longestSvcIdx]+'</strong> students wait an average of <strong>'+longestWait+' min</strong> before being served'+(avgWait!==null?' (system average: '+avgWait+' min)':'')+'. '+
+        (longestWait>12?'This significantly exceeds the recommended 10-minute target.':'This is above the recommended 10-minute target.'),
+      rec:'Review the '+SVCS[longestSvcIdx]+' workflow for bottlenecks. Consider adding a counter or streamlining document checks to bring wait time below 10 minutes.'
+    });
+  }
+
+  // 3. Peak hour insight
+  if(hourCounts.some(v=>v>0)){
+    const peakCount=Math.max(...hourCounts);
+    const totalHours=hourCounts.filter(v=>v>0).length;
+    insights.push({
+      icon:'📈',color:'#059669',bg:'#F0FDF4',border:'#86EFAC',
+      title:'Peak Demand Period Identified',
+      body:'The busiest hour today was <strong>'+peakLabel+'</strong> with <strong>'+peakCount+' ticket'+(peakCount!==1?'s':'')+' issued</strong>. '+(totalHours>1?'Queue activity spanned '+totalHours+' hours of the day.':''),
+      rec:'Ensure maximum staffing coverage during '+peakLabel+'. Consider starting queue operations 15 minutes earlier if student arrivals precede this window.'
+    });
+  }
+
+  // 4. Base Time Variance — compare configured base time vs actual avg service time
+  try{
+    const btRes=await api('/settings.php');
+    if(btRes.success){
+      const btMap=btRes.base_times||{};
+      for(const svc of SVCS){
+        const bt=btMap[svc]?.minutes;
+        const svcSvd=tks.filter(t=>t.service_type===svc&&t.status==='Served'&&t.called_at&&t.served_at);
+        if(bt&&svcSvd.length>=3){
+          const avgSvcT=svcSvd.map(t=>(new Date(t.served_at)-new Date(t.called_at))/60000);
+          const avgT=Math.round(avgSvcT.reduce((a,b)=>a+b,0)/avgSvcT.length*10)/10;
+          const diff=Math.round((avgT-bt)*10)/10;
+          if(Math.abs(diff)>2){
+            insights.push({
+              icon:'📊',color:'#0369A1',bg:'#E0F2FE',border:'#BAE6FD',
+              title:'ERT Base Time Mismatch — '+svc,
+              body:'The configured base time for <strong>'+svc+'</strong> is <strong>'+bt+' min</strong>, but actual average service time today is <strong>'+avgT+' min</strong> ('+(diff>0?'+':'')+diff+' min '+(diff>0?'over':'under')+' estimate). Based on '+svcSvd.length+' completed transactions.',
+              rec:diff>0?'Increase '+svc+' base time to at least <strong>'+(bt+Math.abs(diff))+' min</strong> in Control Panel → Base Time to improve ERT accuracy for students.':'Consider reducing '+svc+' base time to <strong>'+(bt-Math.abs(diff))+' min</strong> to prevent overestimated wait times that may discourage students from queuing.'
+            });
+          }
+        }
+      }
+    }
+  }catch(e){}
+
+  // 5. Skip rate alert
+  const skipPct=totalTx?Math.round(skipped.length/totalTx*100):0;
+  if(skipPct>15){
+    const servedOf=served.length;
+    insights.push({
+      icon:'🔄',color:'#7C3AED',bg:'#F5F3FF',border:'#DDD6FE',
+      title:'Elevated Skip Rate — '+skipPct+'% of Transactions Skipped',
+      body:'<strong>'+skipped.length+' out of '+totalTx+' tickets</strong> were skipped today ('+skipPct+'%). Only <strong>'+servedOf+' transactions</strong> were fully completed. '+(skipPct>30?'This is a critical level that impacts student service delivery.':''),
+      rec:'Notify students via the mobile app when they are next in line. Consider extending the grace period from 1 minute to 2–3 minutes in the system settings, or adding audio announcements at service windows.'
+    });
+  }
+
+  // 6. Service efficiency (served vs waiting)
+  const stillWaiting=tks.filter(t=>t.status==='Waiting').length;
+  if(stillWaiting>5&&hourCounts[hourCounts.length-1]>0){
+    insights.push({
+      icon:'🕐',color:'#64748B',bg:'#F8FAFC',border:'#CBD5E1',
+      title:'Queue Backlog Detected',
+      body:'<strong>'+stillWaiting+' ticket'+(stillWaiting!==1?'s':'')+' still waiting</strong> in queue as of now. This may indicate demand exceeds current service capacity.',
+      rec:'Review active windows and consider calling additional staff. Ensure all service windows are open and operational.'
+    });
+  }
+
+  const insEl=document.getElementById('an-insights');
+  if(insights.length){
+    insEl.innerHTML=insights.map(i=>`
+      <div style="display:flex;gap:12px;padding:12px;border-radius:10px;background:${i.bg};border:1px solid ${i.border};margin-bottom:10px">
+        <div style="font-size:25px;flex-shrink:0;line-height:1.2">${i.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:16px;font-weight:700;color:${i.color};margin-bottom:3px">${i.title}</div>
+          <div style="font-size:15px;color:#555;margin-bottom:5px;line-height:1.5">${i.body}</div>
+          <div style="font-size:15px;color:#333;background:rgba(0,0,0,.04);padding:5px 8px;border-radius:6px;line-height:1.5"><strong>💡 Recommendation:</strong> ${i.rec}</div>
+        </div>
+      </div>`).join('');
+  }else if(totalTx>0){
+    insEl.innerHTML='<div style="font-size:15px;color:#555;padding:8px 0">✅ <strong>System performing well.</strong> No significant issues detected for this date. All metrics are within acceptable ranges — waiting times are below threshold, skip rate is low, and service demand is balanced across windows.</div>';
+  }else{
+    insEl.innerHTML='<div class="empty" style="font-size:15px">No transaction data for this date. Insights will appear once tickets are issued and processed.</div>';
+  }
+}
+
+</script>
+</body>
+</html>
+
