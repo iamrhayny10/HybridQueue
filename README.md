@@ -133,6 +133,68 @@ flutter pub get
 
 ---
 
+## Serveo SSH Key Setup (one-time)
+
+Serveo identifies you by your SSH key. To use your own subdomain (`grcqueue2`), register your SSH public key with Serveo once. Do this on every computer that will run the tunnel.
+
+### 1. Check that SSH is installed
+
+```powershell
+ssh -V
+```
+
+Windows 10/11 includes OpenSSH. If the command is not found, go to Settings > Apps > Optional features > Add a feature > **OpenSSH Client**.
+
+### 2. Create your SSH key
+
+First check whether you already have one:
+
+```powershell
+dir $env:USERPROFILE\.ssh
+```
+
+If you see `id_ed25519` and `id_ed25519.pub`, skip to step 3. Otherwise create a key and press **Enter** at each prompt to accept the defaults (a passphrase is optional):
+
+```powershell
+ssh-keygen -t ed25519 -C "grc-queue"
+```
+
+This creates two files in `C:\Users\<YourName>\.ssh\`:
+
+* `id_ed25519`: your **private** key. Never share it and never upload it to GitHub.
+* `id_ed25519.pub`: your public key (the one Serveo registers).
+
+### 3. Register the key with Serveo
+
+Run the tunnel using your key:
+
+```powershell
+ssh -i $env:USERPROFILE\.ssh\id_ed25519 -R grcqueue2:80:localhost:80 serveo.net
+```
+
+1. Type `yes` if SSH asks you to trust the server.
+2. On the first run, Serveo prints a message saying you must register your SSH public key, with a **Google** link and a **GitHub** link.
+3. Open one of the links in your browser and sign in to confirm the key.
+4. Go back to the terminal and run the **same command again**.
+
+When the key is registered, Serveo accepts the `grcqueue2` subdomain and prints the forwarding URL (`https://grcqueue2.serveousercontent.com`). Keep this window open while the system is in use.
+
+### 4. Check it works
+
+Open `https://grcqueue2.serveousercontent.com/queue_system/frontend/admin/index.html` in a browser. Apache must be running, and you may need to continue past the Serveo warning page on the first visit.
+
+### Troubleshooting Serveo
+
+* **It keeps asking you to register after you verified:** try the other login option (Google or GitHub), then run the command again. If it still fails, start a temporary tunnel with a random address: `ssh -R 80:localhost:80 serveo.net`. Copy the URL it prints into `BASE_URL` in `frontend/config.js` and `baseUrl` in the Flutter app.
+* **Subdomain taken or not accepted:** the subdomain is tied to the key that registered it. Use the same key on every computer, or pick a new subdomain and update `config.js` and the Flutter `baseUrl`.
+* **Using a different computer:** either copy your `.ssh` folder over with a USB drive (never by email or chat), or create a new key there and register it with steps 2 to 3.
+* **Pages stop loading after a while:** the tunnel dropped. Add `-o ServerAliveInterval=60` to the command to keep it alive:
+  ```powershell
+  ssh -i $env:USERPROFILE\.ssh\id_ed25519 -o ServerAliveInterval=60 -R grcqueue2:80:localhost:80 serveo.net
+  ```
+
+---
+
 ## Running the Application
 
 ### 1. Start the servers
@@ -149,10 +211,10 @@ It runs on `http://localhost:5001` (`POST /predict`). Open `http://localhost:500
 
 ### 3. Start the Serveo tunnel
 
-The web pages and the mobile app connect to the system through a Serveo tunnel. Keep this window open while the system is in use:
+The web pages and the mobile app connect to the system through a Serveo tunnel. Register your SSH key first (see **Serveo SSH Key Setup** above), then keep this window open while the system is in use:
 
 ```bash
-ssh -R grcqueue2:80:localhost:80 serveo.net
+ssh -i $env:USERPROFILE\.ssh\id_ed25519 -R grcqueue2:80:localhost:80 serveo.net
 ```
 
 The system is then reachable at `https://grcqueue2.serveousercontent.com`. If you use a different subdomain, replace `grcqueue2` in the command and in steps 4 and 6 below.
